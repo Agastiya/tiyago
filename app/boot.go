@@ -2,45 +2,62 @@ package app
 
 import (
 	"flag"
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/agastiya/tiyago/config"
 	"github.com/agastiya/tiyago/controller"
+	"github.com/agastiya/tiyago/database/migrations"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/jwt"
 	"github.com/agastiya/tiyago/routes"
 )
 
-var environment = flag.String("tag", "", "define tag")
+var (
+	environment = flag.String("tag", "", "define tag")
+	migrate     = flag.Bool("migrate", false, "run migration only")
+	initConfig  *config.Config
+)
 
 func init() {
 	flag.Parse()
 
-	if strings.Contains(*environment, "DEV-") {
+	switch {
+	case strings.Contains(*environment, "DEV-"):
 		*environment = constant.Development
-	} else if strings.Contains(*environment, "PROD-") {
+	case strings.Contains(*environment, "PROD-"):
 		*environment = constant.Production
-	} else {
+	default:
 		*environment = constant.Local
 	}
+
+	initConfig = config.GetEnvironment(*environment)
 }
 
-func ServiceInit(env *config.Environment) {
+func PackageInit(env *config.Environment) {
 	jwt.JwtVar = &jwt.JwtService{ConfigJwt: env.Jwt}
 }
 
-func AppInitialization() {
-	config := config.GetEnvironment(*environment)
-	ServiceInit(&config.Environment)
+func AppInit() {
 
-	config.Database.BuildConnection()
-	config.Routes = &routes.Routes{
-		Env:        config.Environment.App.Environment,
+	PackageInit(&initConfig.Environment)
+
+	initConfig.Database.BuildConnection()
+
+	if *migrate {
+		fmt.Print("Test")
+		migrations.Up()
+		os.Exit(1)
+	}
+
+	initConfig.Routes = &routes.Routes{
+		Env:        initConfig.Environment.App.Environment,
 		Controller: &controller.Controller{},
 		// Middleware: &Middleware.Middleware{
 		// 	Jwt:            Jwt.JwtVar,
 		// 	SwaggerSetting: environment.Environment.Swagger,
 		// },
 	}
-	config.Engine.ServeHTTP(config.Routes.CollectRoutes())
+	initConfig.Engine.ServeHTTP(initConfig.Routes.CollectRoutes())
 }
