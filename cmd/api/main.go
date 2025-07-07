@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/agastiya/tiyago/app"
+)
 
 func main() {
-	fmt.Println("start ...")
+	app.AppInitialization()
 }
