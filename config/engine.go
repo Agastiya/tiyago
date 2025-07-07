@@ -1,4 +1,4 @@
-package Config
+package config
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"go-rest-api/Constant"
+	"github.com/agastiya/tiyago/pkg/constant"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
@@ -22,7 +22,7 @@ func GetEnvironment(env string) *Config {
 
 	var environment Environment
 	_, filename, _, _ := runtime.Caller(1)
-	envPath := path.Join(path.Dir(filename), Constant.Environment+env+".yml")
+	envPath := path.Join(path.Dir(filename), constant.Environment+env+".yml")
 
 	_, err := os.Stat(envPath)
 	if err != nil {

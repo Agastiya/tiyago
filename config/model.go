@@ -1,4 +1,4 @@
-package Config
+package config
 
 import "github.com/go-chi/chi/v5"
 
