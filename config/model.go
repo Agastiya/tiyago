@@ -4,17 +4,13 @@ import "github.com/go-chi/chi/v5"
 
 type (
 	Config struct {
-		Database    DatabaseInterface
-		Routes      RouteInterface
-		Engine      EngineInterface
 		Environment Environment
-	}
-
-	DatabaseInterface interface {
-		BuildConnection()
+		Engine      EngineInterface
+		Routes      RouteInterface
 	}
 
 	EngineInterface interface {
+		BuildConnection()
 		ServeHTTP(route *chi.Mux)
 	}
 

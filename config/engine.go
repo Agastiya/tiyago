@@ -43,7 +43,7 @@ func GetEnvironment(env string) *Config {
 	}
 
 	log.Info().Msgf("[%s] Environment Configuration Loaded Successfully!", environment.App.Environment)
-	return &Config{environment, nil, environment, environment}
+	return &Config{Environment: environment, Engine: environment, Routes: nil}
 }
 
 func (env Environment) BuildConnection() {

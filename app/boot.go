@@ -2,7 +2,6 @@ package app
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"strings"
 
@@ -39,18 +38,18 @@ func PackageInit(env *config.Environment) {
 	jwt.JwtVar = &jwt.JwtService{ConfigJwt: env.Jwt}
 }
 
-func AppInit() {
-
-	PackageInit(&initConfig.Environment)
-
-	initConfig.Database.BuildConnection()
-
+func RunningMigration(migrate *bool) {
 	if *migrate {
-		fmt.Print("Test")
 		migrations.Up()
 		os.Exit(1)
 	}
+}
 
+func AppInit() {
+
+	initConfig.Engine.BuildConnection()
+	PackageInit(&initConfig.Environment)
+	RunningMigration(migrate)
 	initConfig.Routes = &routes.Routes{
 		Env:        initConfig.Environment.App.Environment,
 		Controller: &controller.Controller{},
