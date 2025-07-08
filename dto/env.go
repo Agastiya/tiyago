@@ -1,24 +1,6 @@
-package config
-
-import "github.com/go-chi/chi/v5"
+package dto
 
 type (
-	Config struct {
-		Environment Environment
-		Engine      EngineInterface
-		Routes      RouteInterface
-	}
-
-	EngineInterface interface {
-		BuildConnection()
-		RunMigration(migrate *bool)
-		ServeHTTP(route *chi.Mux)
-	}
-
-	RouteInterface interface {
-		CollectRoutes() *chi.Mux
-	}
-
 	Environment struct {
 		App       AppSetting        `yaml:"app"`
 		Databases []DatabaseSetting `yaml:"databases"`

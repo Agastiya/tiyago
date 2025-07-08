@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 
+	"github.com/agastiya/tiyago/dto"
 	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,8 +23,10 @@ func (d DBConfigName) Get() *gorm.DB {
 	return dbConfigConnection[d]
 }
 
-func CreatePostgreSQLConnection(env DatabaseSetting) *gorm.DB {
+func CreatePostgreSQLConnection(env dto.DatabaseSetting) *gorm.DB {
+
 	psqlUrl := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", env.Host, env.Port, env.User, env.Password, env.Database)
+
 	connection, err := gorm.Open(postgres.Open(psqlUrl), &gorm.Config{
 		PrepareStmt: true,
 	})

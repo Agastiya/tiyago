@@ -1,7 +1,7 @@
 package jwt
 
-import "github.com/agastiya/tiyago/config"
+import "github.com/agastiya/tiyago/dto"
 
 type JwtService struct {
-	ConfigJwt config.JwtSetting
+	ConfigJwt dto.JwtSetting
 }

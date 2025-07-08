@@ -7,12 +7,12 @@ import (
 )
 
 type Routes struct {
-	Env string
-	// Middleware Middleware.MiddlewareInterface
+	Env        string
 	Controller controller.ControllerInterface
+	// Middleware Middleware.MiddlewareInterface
 }
 
-func (app *Routes) CollectRoutes() *chi.Mux {
+func (app *Routes) Register() *chi.Mux {
 
 	appRoute := chi.NewRouter()
 	appRoute.Use(chiMiddleware.RequestID)

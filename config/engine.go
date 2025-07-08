@@ -11,64 +11,96 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/agastiya/tiyago/contracts"
+	"github.com/agastiya/tiyago/controller"
 	"github.com/agastiya/tiyago/database/migrations"
+	"github.com/agastiya/tiyago/dto"
 	"github.com/agastiya/tiyago/pkg/constant"
+	"github.com/agastiya/tiyago/pkg/jwt"
+	"github.com/agastiya/tiyago/routes"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
 
+type (
+	Env dto.Environment
+
+	Config struct {
+		Environment Env
+		Engine      contracts.Engine
+	}
+)
+
 func GetEnvironment(env string) *Config {
 
-	var environment Environment
+	var environment Env
+
 	_, filename, _, _ := runtime.Caller(1)
 	envPath := path.Join(path.Dir(filename), constant.Environment+env+".yml")
 
 	_, err := os.Stat(envPath)
 	if err != nil {
-		log.Info().Msg(err.Error())
-		panic(err)
+		log.Fatal().Msgf("Environment file not found: %s", envPath)
 	}
 
 	content, err := os.ReadFile(envPath)
 	if err != nil {
-		log.Info().Msg(err.Error())
-		panic(err)
+		log.Fatal().Msgf("Failed to read file. %+v", err.Error())
 	}
 
 	err = yaml.Unmarshal(content, &environment)
 	if err != nil {
-		log.Info().Msg(err.Error())
-		panic(err)
+		log.Fatal().Msgf("Failed to Unmarshal. %+v", err.Error())
 	}
 
 	log.Info().Msgf("[%s] Environment Configuration Loaded Successfully!", environment.App.Environment)
-	return &Config{Environment: environment, Engine: environment, Routes: nil}
+	return &Config{Environment: environment, Engine: environment}
 }
 
-func (env Environment) BuildConnection() {
+func (env Env) InitDatabase() {
 	dbConfig := env.Databases[0]
 	connectionName := DBConfigName(env.Databases[0].Connection)
 	dbConfigConnection[connectionName] = CreatePostgreSQLConnection(dbConfig)
 }
 
-func (env Environment) RunMigration(migrate *bool) {
-	if *migrate {
-		migrations.Run(DATABASE_MAIN.Get())
+func (env Env) Migrate() {
+	db := DATABASE_MAIN.Get()
+	migrations.Run(db)
+}
+
+func (env Env) InitPackage() {
+	jwt.JwtVar = &jwt.JwtService{
+		ConfigJwt: env.Jwt,
 	}
 }
 
-func (env Environment) ServeHTTP(route *chi.Mux) {
+func (env Env) InitRoutes() *chi.Mux {
+	routes := &routes.Routes{
+		Env:        env.App.Environment,
+		Controller: &controller.Controller{},
+		// Middleware: &Middleware.Middleware{
+		// 	Jwt:            Jwt.JwtVar,
+		// 	SwaggerSetting: environment.Environment.Swagger,
+		// },
+	}
+	return routes.Register()
+}
+
+func (env Env) Serve() {
+
 	var healthy int32
 	done := make(chan bool)
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
 	address := env.App.Host + ":" + env.App.Port
 	httpServer := &http.Server{
 		Addr:    address,
-		Handler: route,
+		Handler: env.InitRoutes(),
 	}
+
 	go func() {
 		<-quit
 		log.Info().Msg("Server is shutting down...")

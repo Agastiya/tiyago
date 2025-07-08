@@ -5,10 +5,7 @@ import (
 	"strings"
 
 	"github.com/agastiya/tiyago/config"
-	"github.com/agastiya/tiyago/controller"
 	"github.com/agastiya/tiyago/pkg/constant"
-	"github.com/agastiya/tiyago/pkg/jwt"
-	"github.com/agastiya/tiyago/routes"
 )
 
 var (
@@ -18,6 +15,7 @@ var (
 )
 
 func init() {
+
 	flag.Parse()
 
 	switch {
@@ -32,22 +30,11 @@ func init() {
 	initConfig = config.GetEnvironment(*environment)
 }
 
-func PackageInit(env *config.Environment) {
-	jwt.JwtVar = &jwt.JwtService{ConfigJwt: env.Jwt}
-}
-
 func AppInit() {
-
-	initConfig.Engine.BuildConnection()
-	initConfig.Engine.RunMigration(migrate)
-	PackageInit(&initConfig.Environment)
-	initConfig.Routes = &routes.Routes{
-		Env:        initConfig.Environment.App.Environment,
-		Controller: &controller.Controller{},
-		// Middleware: &Middleware.Middleware{
-		// 	Jwt:            Jwt.JwtVar,
-		// 	SwaggerSetting: environment.Environment.Swagger,
-		// },
+	initConfig.Engine.InitDatabase()
+	if *migrate {
+		initConfig.Engine.Migrate()
 	}
-	initConfig.Engine.ServeHTTP(initConfig.Routes.CollectRoutes())
+	initConfig.Engine.InitPackage()
+	initConfig.Engine.Serve()
 }
