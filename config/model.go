@@ -11,6 +11,7 @@ type (
 
 	EngineInterface interface {
 		BuildConnection()
+		RunMigration(migrate *bool)
 		ServeHTTP(route *chi.Mux)
 	}
 

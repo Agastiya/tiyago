@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/agastiya/tiyago/database/migrations"
 	"github.com/agastiya/tiyago/pkg/constant"
 
 	"github.com/go-chi/chi/v5"
@@ -50,6 +51,12 @@ func (env Environment) BuildConnection() {
 	dbConfig := env.Databases[0]
 	connectionName := DBConfigName(env.Databases[0].Connection)
 	dbConfigConnection[connectionName] = CreatePostgreSQLConnection(dbConfig)
+}
+
+func (env Environment) RunMigration(migrate *bool) {
+	if *migrate {
+		migrations.Run(DATABASE_MAIN.Get())
+	}
 }
 
 func (env Environment) ServeHTTP(route *chi.Mux) {

@@ -2,12 +2,10 @@ package app
 
 import (
 	"flag"
-	"os"
 	"strings"
 
 	"github.com/agastiya/tiyago/config"
 	"github.com/agastiya/tiyago/controller"
-	"github.com/agastiya/tiyago/database/migrations"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/jwt"
 	"github.com/agastiya/tiyago/routes"
@@ -38,18 +36,11 @@ func PackageInit(env *config.Environment) {
 	jwt.JwtVar = &jwt.JwtService{ConfigJwt: env.Jwt}
 }
 
-func RunningMigration(migrate *bool) {
-	if *migrate {
-		migrations.Up()
-		os.Exit(1)
-	}
-}
-
 func AppInit() {
 
 	initConfig.Engine.BuildConnection()
+	initConfig.Engine.RunMigration(migrate)
 	PackageInit(&initConfig.Environment)
-	RunningMigration(migrate)
 	initConfig.Routes = &routes.Routes{
 		Env:        initConfig.Environment.App.Environment,
 		Controller: &controller.Controller{},

@@ -1,15 +1,21 @@
 package migrations
 
 import (
-	"github.com/agastiya/tiyago/config"
+	"os"
+
+	"github.com/agastiya/tiyago/models"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 )
 
-func Up() error {
-	db := config.DATABASE_MAIN.Get()
-	if err := db.AutoMigrate(&User{}); err != nil {
-		return err
+var modelList = []any{
+	models.User{},
+}
+
+func Run(db *gorm.DB) {
+	if err := db.AutoMigrate(modelList...); err != nil {
+		log.Fatal().Msgf("[Migration] Failed: %v", err)
 	}
 	log.Info().Msg("[Migration] Successfully Running!")
-	return nil
+	os.Exit(1)
 }
