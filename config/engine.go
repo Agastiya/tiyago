@@ -68,6 +68,7 @@ func (env Env) InitDatabase() {
 func (env Env) Migrate() {
 	db := DATABASE_MAIN.Get()
 	migrations.Run(db)
+	os.Exit(1)
 }
 
 func (env Env) InitPackage() {

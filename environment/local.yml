@@ -10,7 +10,8 @@ databases:
   port: 5432
   user: "postgres"
   password: "postgres"
-  database: "go-rest-api"
+  database: "tiyago"
   usage: "Main databases!"
 jwt:
-  secretKey: "dHgpUE99P299bks4a2NZS2leKlJwfSQveSdIZ0NYU05zZk1lLnF3Ryg9fmddNnViMEouRSVqeF5fc0RubC44"
+  secret_key: "12345"
+  refresh_secret_key: "123456"
