@@ -8,11 +8,12 @@ import (
 
 type Routes struct {
 	Env        string
-	Controller controller.ControllerInterface
+	Controller controller.Controller
+	// Controller controller.ControllerInterface
 	// Middleware Middleware.MiddlewareInterface
 }
 
-func (app *Routes) Register() *chi.Mux {
+func (app *Routes) InitRoutes() *chi.Mux {
 
 	appRoute := chi.NewRouter()
 	appRoute.Use(chiMiddleware.RequestID)
@@ -21,34 +22,11 @@ func (app *Routes) Register() *chi.Mux {
 	appRoute.Use(chiMiddleware.Recoverer)
 
 	appRoute.Route("/tiyago", func(appRoute chi.Router) {
-
-		// appRoute.Group(func(appRoute chi.Router) {
-		// 	appRoute.Route("/auth", func(appRoute chi.Router) {
-		// 		appRoute.Post("/login", app.Controller.Login)
-		// 	})
-		// })
-
-		// appRoute.Group(func(appRoute chi.Router) {
-		// 	appRoute.Use(app.Middleware.UserAuth())
-		// 	appRoute.Route("/account", func(appRoute chi.Router) {
-		// 		appRoute.Post("/", app.Controller.CreateAccount)
-		// 		appRoute.Route("/{id}", func(appRoute chi.Router) {
-		// 			appRoute.Put("/", app.Controller.UpdateAccountPassword)
-		// 			appRoute.Put("/active", app.Controller.UpdateAccountStatus)
-		// 		})
-		// 	})
-		// })
-
-		// use basic auth or mount swagger based on specific environment
-		// if app.Env == "development" {
-		// 	appRoute.Group(func(appRoute chi.Router) {
-		// 		appRoute.Use(app.Middleware.BasicAuthSwagger())
-		// 		appRoute.Mount("/swagger", httpSwagger.WrapHandler)
-		// 	})
-		// } else if app.Env == "local" {
-		// 	appRoute.Mount("/swagger", httpSwagger.WrapHandler)
-		// }
-
+		appRoute.Group(func(appRoute chi.Router) {
+			appRoute.Route("/user", func(appRoute chi.Router) {
+				appRoute.Post("/", app.Controller.User.UserCreate)
+			})
+		})
 		appRoute.Get("/ping", app.Controller.Ping)
 	})
 

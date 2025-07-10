@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/agastiya/tiyago/contracts"
-	"github.com/agastiya/tiyago/controller"
 	"github.com/agastiya/tiyago/database/migrations"
 	"github.com/agastiya/tiyago/dto"
+	"github.com/agastiya/tiyago/module"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/jwt"
 	"github.com/agastiya/tiyago/routes"
@@ -77,16 +77,17 @@ func (env Env) InitPackage() {
 	}
 }
 
-func (env Env) InitRoutes() *chi.Mux {
+func (env Env) InitRoute() *chi.Mux {
+	db := DATABASE_MAIN.Get()
 	routes := &routes.Routes{
 		Env:        env.App.Environment,
-		Controller: &controller.Controller{},
+		Controller: module.InitModules(db).Controller,
 		// Middleware: &Middleware.Middleware{
 		// 	Jwt:            Jwt.JwtVar,
 		// 	SwaggerSetting: environment.Environment.Swagger,
 		// },
 	}
-	return routes.Register()
+	return routes.InitRoutes()
 }
 
 func (env Env) Serve() {
@@ -99,7 +100,7 @@ func (env Env) Serve() {
 	address := env.App.Host + ":" + env.App.Port
 	httpServer := &http.Server{
 		Addr:    address,
-		Handler: env.InitRoutes(),
+		Handler: env.InitRoute(),
 	}
 
 	go func() {
