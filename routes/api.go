@@ -9,7 +9,6 @@ import (
 type Routes struct {
 	Env        string
 	Controller controller.Controller
-	// Controller controller.ControllerInterface
 	// Middleware Middleware.MiddlewareInterface
 }
 
