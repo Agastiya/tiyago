@@ -7,7 +7,13 @@ import (
 	"github.com/agastiya/tiyago/pkg/helper/response"
 )
 
-type Base interface {
+type BaseController struct{}
+
+func NewBaseController() IBaseController {
+	return &BaseController{}
+}
+
+type IBaseController interface {
 	Ping(w http.ResponseWriter, r *http.Request)
 }
 
@@ -15,6 +21,6 @@ type Base interface {
 // @Accept   json
 // @Produce  json
 // @Router   /ping [get]
-func (c Controller) Ping(w http.ResponseWriter, r *http.Request) {
+func (bc *BaseController) Ping(w http.ResponseWriter, r *http.Request) {
 	response.ResponseSuccess(w, nil, constant.StatusOKJson)
 }

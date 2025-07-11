@@ -2,7 +2,7 @@ package module
 
 import (
 	"github.com/agastiya/tiyago/controller"
-	"github.com/agastiya/tiyago/repository/user"
+	"github.com/agastiya/tiyago/repository"
 	"github.com/agastiya/tiyago/service"
 	"gorm.io/gorm"
 )
@@ -11,14 +11,13 @@ type AppModule struct {
 	Controller controller.Controller
 }
 
-func InitModules(db *gorm.DB) AppModule {
-	userRepo := user.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
-	serviceAggregator := service.Service{
-		User: userService,
-	}
+func InitModule(db *gorm.DB) AppModule {
+
+	repos := repository.InitRepos(db)
+	services := service.InitServices(repos)
+	ctrl := controller.InitController(*services)
 
 	return AppModule{
-		Controller: controller.NewController(serviceAggregator),
+		Controller: *ctrl,
 	}
 }

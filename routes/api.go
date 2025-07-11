@@ -24,10 +24,10 @@ func (app *Routes) InitRoutes() *chi.Mux {
 	appRoute.Route("/tiyago", func(appRoute chi.Router) {
 		appRoute.Group(func(appRoute chi.Router) {
 			appRoute.Route("/user", func(appRoute chi.Router) {
-				appRoute.Post("/", app.Controller.User.UserCreate)
+				appRoute.Post("/", app.Controller.UserController.UserCreate)
 			})
 		})
-		appRoute.Get("/ping", app.Controller.Ping)
+		appRoute.Get("/ping", app.Controller.BaseController.Ping)
 	})
 
 	return appRoute

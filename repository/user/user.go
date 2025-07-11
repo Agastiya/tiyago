@@ -2,21 +2,10 @@ package user
 
 import (
 	"github.com/agastiya/tiyago/models"
-	"gorm.io/gorm"
 )
 
-type (
-	UserRepository struct {
-		PostgreDB *gorm.DB
-	}
-
-	IUserRepository interface {
-		CreateUser(user *models.User) (*models.User, error)
-	}
-)
-
-func NewUserRepository(db *gorm.DB) IUserRepository {
-	return &UserRepository{PostgreDB: db}
+type IUserRepository interface {
+	CreateUser(user *models.User) (*models.User, error)
 }
 
 func (r *UserRepository) CreateUser(user *models.User) (*models.User, error) {

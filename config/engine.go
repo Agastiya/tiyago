@@ -81,7 +81,7 @@ func (env Env) InitRoute() *chi.Mux {
 	db := DATABASE_MAIN.Get()
 	routes := &routes.Routes{
 		Env:        env.App.Environment,
-		Controller: module.InitModules(db).Controller,
+		Controller: module.InitModule(db).Controller,
 		// Middleware: &Middleware.Middleware{
 		// 	Jwt:            Jwt.JwtVar,
 		// 	SwaggerSetting: environment.Environment.Swagger,

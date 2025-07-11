@@ -7,21 +7,19 @@ import (
 	"github.com/agastiya/tiyago/dto"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
-	service "github.com/agastiya/tiyago/service"
+	userSvc "github.com/agastiya/tiyago/service/user"
 )
 
-type (
-	UserController struct {
-		User service.IUserService
-	}
+type UserController struct {
+	UserService userSvc.IUserService
+}
 
-	IUserController interface {
-		UserCreate(w http.ResponseWriter, r *http.Request)
-	}
-)
+func NewUserController(service userSvc.IUserService) IUserController {
+	return &UserController{UserService: service}
+}
 
-func NewUserController(service service.IUserService) IUserController {
-	return &UserController{User: service}
+type IUserController interface {
+	UserCreate(w http.ResponseWriter, r *http.Request)
 }
 
 func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +31,7 @@ func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := uc.User.CreateUser(params)
+	result := uc.UserService.CreateUser(params)
 	if result.HasErr {
 		response.ResponseError(w, result.Err, result.InternalCode)
 		return

@@ -6,21 +6,10 @@ import (
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
 	"github.com/agastiya/tiyago/pkg/helper/utils"
-	user "github.com/agastiya/tiyago/repository/user"
 )
 
-type (
-	UserService struct {
-		Repo user.IUserRepository
-	}
-
-	IUserService interface {
-		CreateUser(params dto.CreateUserRequest) response.RespResultService
-	}
-)
-
-func NewUserService(repo user.IUserRepository) IUserService {
-	return &UserService{Repo: repo}
+type IUserService interface {
+	CreateUser(params dto.CreateUserRequest) response.RespResultService
 }
 
 func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResultService {
@@ -34,7 +23,7 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResu
 		CreatedAt: utils.TimeNow(),
 	}
 
-	_, err := s.Repo.CreateUser(userModel)
+	_, err := s.UserRepo.CreateUser(userModel)
 	if err != nil {
 		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
 	}
