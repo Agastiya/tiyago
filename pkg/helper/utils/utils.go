@@ -10,14 +10,6 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-type ContextMap struct {
-	Id       string
-	Name     string
-	Username string
-	Email    string
-	Active   string
-}
-
 func SetValueContext(r *http.Request) (result ContextMap, contextMap jwt.MapClaims, err error) {
 
 	ctxValue := r.Context().Value(constant.ClaimsKey)
@@ -50,4 +42,15 @@ func GetValueOfContext(key string, ctx context.Context) any {
 func TimeNow() time.Time {
 	location, _ := time.LoadLocation(constant.TimeLocation)
 	return time.Now().In(location)
+}
+
+func CheckExists(fieldName, value string, checkFn func(string) (bool, error)) error {
+	exists, err := checkFn(value)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return fmt.Errorf("%s already registered", fieldName)
+	}
+	return nil
 }

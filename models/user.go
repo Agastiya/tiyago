@@ -5,7 +5,8 @@ import "time"
 type User struct {
 	Id         uint      `gorm:"primaryKey;autoIncrement"`
 	Fullname   string    `gorm:"size:100;not null"`
-	Email      string    `gorm:"size:150;not null"`
+	Username   *string   `gorm:"size:15;uniqueIndex"`
+	Email      string    `gorm:"size:150;uniqueIndex;not null"`
 	Password   string    `gorm:"not null"`
 	Active     bool      `gorm:"default:false"`
 	CreatedBy  string    `gorm:"size:100;not null"`

@@ -14,11 +14,22 @@ type IUserService interface {
 
 func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResultService {
 
+	if params.Username != nil {
+		if err := utils.CheckExists("username", *params.Username, s.UserRepo.CheckUsernameExists); err != nil {
+			return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
+		}
+	}
+
+	if err := utils.CheckExists("email", params.Email, s.UserRepo.CheckEmailExists); err != nil {
+		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
+	}
+
 	userModel := &models.User{
 		Fullname:  params.Fullname,
+		Username:  params.Username,
 		Email:     params.Email,
-		Password:  "hashed_password",
-		Active:    false,
+		Password:  "hashed_password", // sample for testing
+		Active:    true,
 		CreatedBy: "system",
 		CreatedAt: utils.TimeNow(),
 	}
