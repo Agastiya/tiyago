@@ -1,11 +1,14 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/agastiya/tiyago/dto"
 	"github.com/agastiya/tiyago/models"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
 	"github.com/agastiya/tiyago/pkg/helper/utils"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type IUserService interface {
@@ -24,17 +27,22 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResu
 		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password), 10)
+	if err != nil {
+		return response.ResponseService(true, errors.New("hashed password failed"), constant.StatusDataBadRequest, nil, nil)
+	}
+
 	userModel := &models.User{
 		Fullname:  params.Fullname,
 		Username:  params.Username,
 		Email:     params.Email,
-		Password:  "hashed_password", // sample for testing
+		Password:  string(hashedPassword),
 		Active:    true,
-		CreatedBy: "system",
+		CreatedBy: "System",
 		CreatedAt: utils.TimeNow(),
 	}
 
-	_, err := s.UserRepo.CreateUser(userModel)
+	_, err = s.UserRepo.CreateUser(userModel)
 	if err != nil {
 		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
 	}
