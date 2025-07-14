@@ -1,15 +1,59 @@
 package user
 
 import (
+	"fmt"
+
 	"github.com/agastiya/tiyago/models"
 )
 
 type IUserRepository interface {
+	BrowseUser(params BrowseUserFilter) ([]BrowseUserWithMeta, error)
 	CheckUsernameExists(username string, id int64) (bool, error)
 	CheckEmailExists(email string, id int64) (bool, error)
 	CreateUser(user *models.User) error
 	UpdateUser(user *models.User) error
 	DeleteUser(user *models.User) error
+}
+
+func (r *UserRepository) BrowseUser(params BrowseUserFilter) ([]BrowseUserWithMeta, error) {
+
+	var users []BrowseUserWithMeta
+	db := r.PostgreDB.Table("users").
+		Select(`
+			users.*, 
+			COUNT(*) OVER() AS total_records,
+			CASE 
+				WHEN CEILING(COUNT(*) OVER() / CAST(? AS FLOAT)) = (? + 1) 
+				THEN TRUE 
+				ELSE FALSE 
+			END AS has_reach_max`, params.PageSize, params.PageNumber).
+		Where("deleted_at IS NULL")
+
+	if params.Fullname != nil {
+		db = db.Where("fullname ILIKE ?", "%"+*params.Fullname+"%")
+	}
+
+	if params.Username != nil {
+		db = db.Where("username ILIKE ?", "%"+*params.Username+"%")
+	}
+
+	if params.Email != nil {
+		db = db.Where("email ILIKE ?", "%"+*params.Email+"%")
+	}
+
+	if params.SortColumn != "" && params.SortOrder != "" {
+		order := fmt.Sprintf("%s %s", params.SortColumn, params.SortOrder)
+		db = db.Order(order)
+	}
+
+	db = db.Limit(params.PageSize).Offset(params.PageNumber)
+
+	err := db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (r *UserRepository) CheckUsernameExists(username string, id int64) (bool, error) {

@@ -43,14 +43,3 @@ func TimeNow() time.Time {
 	location, _ := time.LoadLocation(constant.TimeLocation)
 	return time.Now().In(location)
 }
-
-func CheckExists(fieldName, value string, excludeId int64, checkFn func(string, int64) (bool, error)) error {
-	exists, err := checkFn(value, excludeId)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf("%s already registered", fieldName)
-	}
-	return nil
-}

@@ -8,22 +8,77 @@ import (
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
 	"github.com/agastiya/tiyago/pkg/helper/utils"
+	"github.com/agastiya/tiyago/repository/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type IUserService interface {
+	BrowseUser(params dto.BrowseUserRequest) response.RespResultService
 	CreateUser(params dto.CreateUserRequest) response.RespResultService
 	UpdateUser(params dto.UpdateUserRequest) response.RespResultService
 	DeleteUser(params dto.DeleteUserRequest) response.RespResultService
 }
 
+func (s *UserService) BrowseUser(params dto.BrowseUserRequest) response.RespResultService {
+
+	var defaultPaginationParams = dto.Pagination{PageSize: 10, PageNumber: 0, SortColumn: "id", SortOrder: "DESC"}
+	params.Pagination = utils.SetDefaultParams(params.Pagination, defaultPaginationParams)
+	params.SortOrder = utils.ValidateSortOrder(params.SortOrder, defaultPaginationParams.SortOrder)
+	params.SortColumn = utils.ValidateSortColumn(allowedFieldToSort, params.SortColumn, defaultPaginationParams.SortColumn)
+
+	filter := user.BrowseUserFilter{
+		PageSize:   params.PageSize,
+		PageNumber: params.PageNumber * params.PageSize,
+		SortColumn: params.SortColumn,
+		SortOrder:  params.SortOrder,
+		Fullname:   params.Fullname,
+		Username:   params.Username,
+		Email:      params.Email,
+	}
+
+	result, err := s.UserRepo.BrowseUser(filter)
+	if err != nil {
+		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
+	}
+
+	browseResult := make([]dto.UserResponse, len(result))
+	var totalRecords int
+	var hasReachMax bool
+
+	for i, user := range result {
+		browseResult[i] = dto.UserResponse{
+			Id:         user.Id,
+			Fullname:   user.Fullname,
+			Username:   user.Username,
+			Email:      user.Email,
+			Active:     user.Active,
+			CreatedBy:  user.CreatedBy,
+			CreatedAt:  user.CreatedAt,
+			ModifiedBy: user.ModifiedBy,
+			ModifiedAt: user.ModifiedAt,
+		}
+		if i == 0 {
+			totalRecords = user.TotalRecords
+			hasReachMax = user.HasReachMax
+		}
+	}
+
+	resultData := dto.BrowseModel[dto.UserResponse]{
+		RecordsTotal: totalRecords,
+		HasReachMax:  hasReachMax,
+		Data:         browseResult,
+	}
+
+	return response.ResponseService(false, nil, constant.StatusOKJson, nil, resultData)
+}
+
 func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResultService {
 
-	if err := utils.CheckExists("username", params.Username, 0, s.UserRepo.CheckUsernameExists); err != nil {
+	if err := utils.CheckExistsFieldName("username", params.Username, 0, s.UserRepo.CheckUsernameExists); err != nil {
 		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
-	if err := utils.CheckExists("email", params.Email, 0, s.UserRepo.CheckEmailExists); err != nil {
+	if err := utils.CheckExistsFieldName("email", params.Email, 0, s.UserRepo.CheckEmailExists); err != nil {
 		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
@@ -52,11 +107,11 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResu
 
 func (s *UserService) UpdateUser(params dto.UpdateUserRequest) response.RespResultService {
 
-	if err := utils.CheckExists("username", params.Username, params.Id, s.UserRepo.CheckUsernameExists); err != nil {
+	if err := utils.CheckExistsFieldName("username", params.Username, params.Id, s.UserRepo.CheckUsernameExists); err != nil {
 		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
-	if err := utils.CheckExists("email", params.Email, params.Id, s.UserRepo.CheckEmailExists); err != nil {
+	if err := utils.CheckExistsFieldName("email", params.Email, params.Id, s.UserRepo.CheckEmailExists); err != nil {
 		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
