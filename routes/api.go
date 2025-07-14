@@ -24,6 +24,7 @@ func (app *Routes) InitRoutes() *chi.Mux {
 		appRoute.Group(func(appRoute chi.Router) {
 			appRoute.Route("/user", func(appRoute chi.Router) {
 				appRoute.Post("/", app.Controller.UserController.UserCreate)
+				appRoute.Put("/{id}", app.Controller.UserController.UserUpdate)
 			})
 		})
 		appRoute.Get("/ping", app.Controller.BaseController.Ping)

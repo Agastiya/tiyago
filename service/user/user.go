@@ -13,17 +13,16 @@ import (
 
 type IUserService interface {
 	CreateUser(params dto.CreateUserRequest) response.RespResultService
+	UpdateUser(params dto.UpdateUserRequest) response.RespResultService
 }
 
 func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResultService {
 
-	if params.Username != nil {
-		if err := utils.CheckExists("username", *params.Username, s.UserRepo.CheckUsernameExists); err != nil {
-			return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
-		}
+	if err := utils.CheckExists("username", params.Username, 0, s.UserRepo.CheckUsernameExists); err != nil {
+		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
-	if err := utils.CheckExists("email", params.Email, s.UserRepo.CheckEmailExists); err != nil {
+	if err := utils.CheckExists("email", params.Email, 0, s.UserRepo.CheckEmailExists); err != nil {
 		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
@@ -33,7 +32,7 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResu
 	}
 
 	userModel := &models.User{
-		Fullname:  params.Fullname,
+		Fullname:  params.Username,
 		Username:  params.Username,
 		Email:     params.Email,
 		Password:  string(hashedPassword),
@@ -42,7 +41,36 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResu
 		CreatedAt: utils.TimeNow(),
 	}
 
-	_, err = s.UserRepo.CreateUser(userModel)
+	err = s.UserRepo.CreateUser(userModel)
+	if err != nil {
+		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
+	}
+
+	return response.ResponseService(false, nil, constant.StatusOKJson, nil, nil)
+}
+
+func (s *UserService) UpdateUser(params dto.UpdateUserRequest) response.RespResultService {
+
+	if err := utils.CheckExists("username", params.Username, params.Id, s.UserRepo.CheckUsernameExists); err != nil {
+		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
+	}
+
+	if err := utils.CheckExists("email", params.Email, params.Id, s.UserRepo.CheckEmailExists); err != nil {
+		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
+	}
+
+	modifiedBy := "System"
+	time := utils.TimeNow()
+	userModel := &models.User{
+		Id:         params.Id,
+		Fullname:   params.Fullname,
+		Username:   params.Username,
+		Email:      params.Email,
+		ModifiedBy: &modifiedBy,
+		ModifiedAt: &time,
+	}
+
+	err := s.UserRepo.UpdateUser(userModel)
 	if err != nil {
 		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
 	}
