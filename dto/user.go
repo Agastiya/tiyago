@@ -13,3 +13,8 @@ type UpdateUserRequest struct {
 	Username string
 	Email    string
 }
+
+type DeleteUserRequest struct {
+	Id        int64
+	DeletedBy string
+}

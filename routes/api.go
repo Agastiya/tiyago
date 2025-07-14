@@ -22,10 +22,17 @@ func (app *Routes) InitRoutes() *chi.Mux {
 
 	appRoute.Route("/tiyago", func(appRoute chi.Router) {
 		appRoute.Group(func(appRoute chi.Router) {
+
 			appRoute.Route("/user", func(appRoute chi.Router) {
 				appRoute.Post("/", app.Controller.UserController.UserCreate)
-				appRoute.Put("/{id}", app.Controller.UserController.UserUpdate)
+				appRoute.Group(func(appRoute chi.Router) {
+					appRoute.Route("/{id}", func(appRoute chi.Router) {
+						appRoute.Put("/", app.Controller.UserController.UserUpdate)
+						appRoute.Delete("/", app.Controller.UserController.UserDelete)
+					})
+				})
 			})
+
 		})
 		appRoute.Get("/ping", app.Controller.BaseController.Ping)
 	})

@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	Id         int64     `gorm:"primaryKey;autoIncrement"`
@@ -12,5 +14,7 @@ type User struct {
 	CreatedBy  string    `gorm:"size:100;not null"`
 	CreatedAt  time.Time `gorm:"not null"`
 	ModifiedBy *string   `gorm:"size:100"`
+	DeletedBy  *string   `gorm:"size:100"`
 	ModifiedAt *time.Time
+	DeletedAt  *time.Time
 }

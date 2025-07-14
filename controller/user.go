@@ -22,6 +22,7 @@ func NewUserController(service userSvc.IUserService) IUserController {
 type IUserController interface {
 	UserCreate(w http.ResponseWriter, r *http.Request)
 	UserUpdate(w http.ResponseWriter, r *http.Request)
+	UserDelete(w http.ResponseWriter, r *http.Request)
 }
 
 func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
@@ -65,4 +66,24 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+}
+
+func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
+
+	var params dto.DeleteUserRequest
+	var err error
+
+	params.Id, err = utils.GetUrl(r, "id")
+	if err != nil {
+		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		return
+	}
+
+	result := uc.UserService.DeleteUser(params)
+	if result.HasErr {
+		response.ResponseError(w, result.Err, result.InternalCode)
+		return
+	}
+
+	response.ResponseError(w, nil, constant.StatusOKJson)
 }
