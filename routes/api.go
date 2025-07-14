@@ -28,6 +28,7 @@ func (app *Routes) InitRoutes() *chi.Mux {
 				appRoute.Post("/", app.Controller.UserController.UserCreate)
 				appRoute.Group(func(appRoute chi.Router) {
 					appRoute.Route("/{id}", func(appRoute chi.Router) {
+						appRoute.Get("/", app.Controller.UserController.UserDetail)
 						appRoute.Put("/", app.Controller.UserController.UserUpdate)
 						appRoute.Delete("/", app.Controller.UserController.UserDelete)
 					})

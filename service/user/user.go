@@ -10,10 +10,12 @@ import (
 	"github.com/agastiya/tiyago/pkg/helper/utils"
 	"github.com/agastiya/tiyago/repository/user"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type IUserService interface {
 	BrowseUser(params dto.BrowseUserRequest) response.RespResultService
+	DetailUser(id int64) response.RespResultService
 	CreateUser(params dto.CreateUserRequest) response.RespResultService
 	UpdateUser(params dto.UpdateUserRequest) response.RespResultService
 	DeleteUser(params dto.DeleteUserRequest) response.RespResultService
@@ -70,6 +72,31 @@ func (s *UserService) BrowseUser(params dto.BrowseUserRequest) response.RespResu
 	}
 
 	return response.ResponseService(false, nil, constant.StatusOKJson, nil, resultData)
+}
+
+func (s *UserService) DetailUser(id int64) response.RespResultService {
+
+	result, err := s.UserRepo.DetailUser(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return response.ResponseService(true, err, constant.StatusDataNotFound, nil, nil)
+		}
+		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
+	}
+
+	detailResult := dto.UserResponse{
+		Id:         result.Id,
+		Fullname:   result.Fullname,
+		Username:   result.Username,
+		Email:      result.Email,
+		Active:     result.Active,
+		CreatedBy:  result.CreatedBy,
+		CreatedAt:  result.CreatedAt,
+		ModifiedBy: result.ModifiedBy,
+		ModifiedAt: result.ModifiedAt,
+	}
+
+	return response.ResponseService(false, nil, constant.StatusOKJson, nil, detailResult)
 }
 
 func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResultService {

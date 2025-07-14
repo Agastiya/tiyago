@@ -23,6 +23,7 @@ func NewUserController(service userSvc.IUserService) IUserController {
 
 type IUserController interface {
 	UserBrowse(w http.ResponseWriter, r *http.Request)
+	UserDetail(w http.ResponseWriter, r *http.Request)
 	UserCreate(w http.ResponseWriter, r *http.Request)
 	UserUpdate(w http.ResponseWriter, r *http.Request)
 	UserDelete(w http.ResponseWriter, r *http.Request)
@@ -38,6 +39,23 @@ func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := uc.UserService.BrowseUser(params)
+	if result.HasErr {
+		response.ResponseError(w, result.Err, result.InternalCode)
+		return
+	}
+
+	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+}
+
+func (uc *UserController) UserDetail(w http.ResponseWriter, r *http.Request) {
+
+	id, err := utils.GetUrl(r, "id")
+	if err != nil {
+		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		return
+	}
+
+	result := uc.UserService.DetailUser(id)
 	if result.HasErr {
 		response.ResponseError(w, result.Err, result.InternalCode)
 		return
