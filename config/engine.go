@@ -68,7 +68,7 @@ func (env Env) InitDatabase() {
 	dbConfigConnection[connectionName] = CreatePostgreSQLConnection(dbConfig)
 }
 
-func InitModule(db *gorm.DB, env Env) controller.Controller {
+func (env Env) InitModule(db *gorm.DB) controller.Controller {
 	pkg := service.Package{
 		Jwt: jwt.NewJwt(env.Jwt),
 	}
@@ -87,7 +87,7 @@ func (env Env) InitRoute() *chi.Mux {
 	db := DATABASE_MAIN.Get()
 	routes := &routes.Routes{
 		Env:        env.App.Environment,
-		Controller: InitModule(db, env),
+		Controller: env.InitModule(db),
 		// Middleware: &Middleware.Middleware{
 		// 	Jwt:            Jwt.JwtVar,
 		// 	SwaggerSetting: environment.Environment.Swagger,
