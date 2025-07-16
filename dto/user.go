@@ -11,7 +11,7 @@ type BrowseUserRequest struct {
 }
 
 type CreateUserRequest struct {
-	Fullname *string
+	Fullname string
 	Username string
 	Email    string
 	Password string

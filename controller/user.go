@@ -34,7 +34,7 @@ func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 	var params dto.BrowseUserRequest
 	err := schema.NewDecoder().Decode(&params, r.URL.Query())
 	if err != nil {
-		response.ResponseError(w, errors.New("parameter tidak valid"), constant.StatusDataBadRequest)
+		response.ResponseError(w, errors.New("invalid parameter"), constant.StatusDataBadRequest)
 		return
 	}
 

@@ -23,6 +23,10 @@ func (app *Routes) InitRoutes() *chi.Mux {
 	appRoute.Route("/tiyago", func(appRoute chi.Router) {
 		appRoute.Group(func(appRoute chi.Router) {
 
+			appRoute.Route("/auth", func(appRoute chi.Router) {
+				appRoute.Post("/loginbyemail", app.Controller.AuthController.LoginByEmail)
+			})
+
 			appRoute.Route("/user", func(appRoute chi.Router) {
 				appRoute.Get("/", app.Controller.UserController.UserBrowse)
 				appRoute.Post("/", app.Controller.UserController.UserCreate)

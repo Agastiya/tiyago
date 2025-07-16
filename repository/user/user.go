@@ -9,6 +9,7 @@ import (
 type IUserRepository interface {
 	BrowseUser(params BrowseUserFilter) ([]BrowseUserWithMeta, error)
 	DetailUser(id int64) (*models.User, error)
+	DetailUserByEmail(email string) (*models.User, error)
 	CheckUsernameExists(username string, id int64) (bool, error)
 	CheckEmailExists(email string, id int64) (bool, error)
 	CreateUser(user *models.User) error
@@ -62,6 +63,19 @@ func (r *UserRepository) DetailUser(id int64) (*models.User, error) {
 	var user models.User
 	err := r.PostgreDB.
 		Where("id = ?", id).
+		Where("deleted_at IS NULL").
+		Take(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *UserRepository) DetailUserByEmail(email string) (*models.User, error) {
+
+	var user models.User
+	err := r.PostgreDB.
+		Where("email = ?", email).
 		Where("deleted_at IS NULL").
 		Take(&user).Error
 	if err != nil {

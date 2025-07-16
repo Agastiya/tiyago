@@ -27,7 +27,8 @@ type (
 	}
 
 	JwtSetting struct {
-		SecretKey string `yaml:"secretKey"`
+		SecretKey       string `yaml:"secret_key"`
+		RefresSecretKey string `yaml:"refresh_secret_key"`
 	}
 
 	SwaggerSetting struct {

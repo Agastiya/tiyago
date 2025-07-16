@@ -1,18 +1,34 @@
 package service
 
 import (
+	"github.com/agastiya/tiyago/pkg/jwt"
 	"github.com/agastiya/tiyago/repository"
+	authSvc "github.com/agastiya/tiyago/service/auth"
 	userSvc "github.com/agastiya/tiyago/service/user"
 )
 
 type Service struct {
 	User userSvc.IUserService
+	Auth authSvc.IAuthService
 }
 
-func InitServices(deps *repository.Repositories) *Service {
+type Package struct {
+	Jwt jwt.IJwt
+}
+
+type ServiceDeps struct {
+	Repos   *repository.Repositories
+	Package Package
+}
+
+func InitServices(deps ServiceDeps) *Service {
 	return &Service{
 		User: userSvc.NewUserService(userSvc.UserServiceDeps{
-			UserRepo: deps.UserRepo,
+			UserRepo: deps.Repos.UserRepo,
+		}),
+		Auth: authSvc.NewAuthService(authSvc.AuthServiceDeps{
+			UserRepo: deps.Repos.UserRepo,
+			Jwt:      deps.Package.Jwt,
 		}),
 	}
 }
