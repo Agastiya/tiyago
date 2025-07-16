@@ -12,12 +12,15 @@ import (
 	"time"
 
 	"github.com/agastiya/tiyago/contracts"
+	"github.com/agastiya/tiyago/controller"
 	"github.com/agastiya/tiyago/database/migrations"
 	"github.com/agastiya/tiyago/dto"
-	"github.com/agastiya/tiyago/module"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/jwt"
+	"github.com/agastiya/tiyago/repository"
 	"github.com/agastiya/tiyago/routes"
+	"github.com/agastiya/tiyago/service"
+	"gorm.io/gorm"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
@@ -65,29 +68,38 @@ func (env Env) InitDatabase() {
 	dbConfigConnection[connectionName] = CreatePostgreSQLConnection(dbConfig)
 }
 
-func (env Env) Migrate() {
-	db := DATABASE_MAIN.Get()
-	migrations.Run(db)
-	os.Exit(1)
-}
-
-func (env Env) InitPackage() {
-	jwt.JwtVar = &jwt.JwtService{
-		ConfigJwt: env.Jwt,
+func InitModule(db *gorm.DB, env Env) controller.Controller {
+	pkg := service.Package{
+		Jwt: jwt.NewJwt(env.Jwt),
 	}
+
+	repos := repository.InitRepos(db)
+	services := service.InitServices(service.ServiceDeps{
+		Repos:   repos,
+		Package: pkg,
+	})
+	ctrl := controller.InitController(*services)
+
+	return *ctrl
 }
 
 func (env Env) InitRoute() *chi.Mux {
 	db := DATABASE_MAIN.Get()
 	routes := &routes.Routes{
 		Env:        env.App.Environment,
-		Controller: module.InitModule(db).Controller,
+		Controller: InitModule(db, env),
 		// Middleware: &Middleware.Middleware{
 		// 	Jwt:            Jwt.JwtVar,
 		// 	SwaggerSetting: environment.Environment.Swagger,
 		// },
 	}
 	return routes.InitRoutes()
+}
+
+func (env Env) Migrate() {
+	db := DATABASE_MAIN.Get()
+	migrations.Run(db)
+	os.Exit(1)
 }
 
 func (env Env) Serve() {

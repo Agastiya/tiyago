@@ -35,6 +35,5 @@ func AppInit() {
 	if *migrate {
 		initConfig.Engine.Migrate()
 	}
-	initConfig.Engine.InitPackage()
 	initConfig.Engine.Serve()
 }
