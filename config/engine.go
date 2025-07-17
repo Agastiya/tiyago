@@ -15,6 +15,7 @@ import (
 	"github.com/agastiya/tiyago/controller"
 	"github.com/agastiya/tiyago/database/migrations"
 	"github.com/agastiya/tiyago/dto"
+	"github.com/agastiya/tiyago/middleware"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/jwt"
 	"github.com/agastiya/tiyago/repository"
@@ -68,15 +69,17 @@ func (env Env) InitDatabase() {
 	dbConfigConnection[connectionName] = CreatePostgreSQLConnection(dbConfig)
 }
 
-func (env Env) InitModule(db *gorm.DB) controller.Controller {
-	pkg := service.Package{
+func (env Env) InitPackage() service.Package {
+	return service.Package{
 		Jwt: jwt.NewJwt(env.Jwt),
 	}
+}
 
-	repos := repository.InitRepos(db)
+func (env Env) InitModule(db *gorm.DB) controller.Controller {
+
 	services := service.InitServices(service.ServiceDeps{
-		Repos:   repos,
-		Package: pkg,
+		Repos:   repository.InitRepos(db),
+		Package: env.InitPackage(),
 	})
 	ctrl := controller.InitController(*services)
 
@@ -85,13 +88,11 @@ func (env Env) InitModule(db *gorm.DB) controller.Controller {
 
 func (env Env) InitRoute() *chi.Mux {
 	db := DATABASE_MAIN.Get()
+	pkg := env.InitPackage()
 	routes := &routes.Routes{
 		Env:        env.App.Environment,
 		Controller: env.InitModule(db),
-		// Middleware: &Middleware.Middleware{
-		// 	Jwt:            Jwt.JwtVar,
-		// 	SwaggerSetting: environment.Environment.Swagger,
-		// },
+		Middleware: middleware.NewMiddleware(pkg.Jwt),
 	}
 	return routes.InitRoutes()
 }

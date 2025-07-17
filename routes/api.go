@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/agastiya/tiyago/controller"
+	"github.com/agastiya/tiyago/middleware"
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 )
@@ -9,7 +10,7 @@ import (
 type Routes struct {
 	Env        string
 	Controller controller.Controller
-	// Middleware Middleware.MiddlewareInterface
+	Middleware middleware.IMiddleware
 }
 
 func (app *Routes) InitRoutes() *chi.Mux {
@@ -28,6 +29,7 @@ func (app *Routes) InitRoutes() *chi.Mux {
 			})
 
 			appRoute.Route("/user", func(appRoute chi.Router) {
+				appRoute.Use(app.Middleware.UserAuth())
 				appRoute.Get("/", app.Controller.UserController.UserBrowse)
 				appRoute.Post("/", app.Controller.UserController.UserCreate)
 				appRoute.Group(func(appRoute chi.Router) {

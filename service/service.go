@@ -12,13 +12,13 @@ type Service struct {
 	Auth authSvc.IAuthService
 }
 
-type Package struct {
-	Jwt jwt.IJwt
-}
-
 type ServiceDeps struct {
 	Repos   *repository.Repositories
 	Package Package
+}
+
+type Package struct {
+	Jwt jwt.IJwt
 }
 
 func InitServices(deps ServiceDeps) *Service {
