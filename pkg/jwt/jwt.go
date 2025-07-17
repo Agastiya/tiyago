@@ -10,7 +10,7 @@ import (
 
 type IJwt interface {
 	GenerateToken(account dto.LoginResponse, key string) (newToken string, err error)
-	// VerifyToken(tokenString string) (claims jwt.MapClaims, err error)
+	VerifyToken(tokenString string, key string) (jwt.MapClaims, error)
 }
 
 func (j Jwt) GenerateToken(account dto.LoginResponse, key string) (string, error) {
@@ -46,25 +46,31 @@ func (j Jwt) GenerateToken(account dto.LoginResponse, key string) (string, error
 	return token, nil
 }
 
-// func (j JwtService) VerifyToken(tokenString string) (claims jwt.MapClaims, err error) {
-// 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-// 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 			return nil, jwt.NewValidationError("unexpected signing method", jwt.ValidationErrorSignatureInvalid)
-// 		}
-// 		return []byte(j.ConfigJwt.SecretKey), nil
-// 	})
-// 	if err != nil {
-// 		return
-// 	}
+func (j Jwt) VerifyToken(tokenString string, key string) (jwt.MapClaims, error) {
 
-// 	if !token.Valid {
-// 		return nil, jwt.NewValidationError("invalid token", jwt.ValidationErrorSignatureInvalid)
-// 	}
+	switch key {
+	case "secret_key":
+		key = j.JwtPackage.SecretKey
+	case "refresh_secret_key":
+		key = j.JwtPackage.RefresSecretKey
+	default:
+		return nil, fmt.Errorf("key not found!")
+	}
 
-// 	claims, ok := token.Claims.(jwt.MapClaims)
-// 	if ok && token.Valid {
-// 		return
-// 	}
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		return []byte(key), nil
+	})
 
-// 	return
-// }
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token")
+}

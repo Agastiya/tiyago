@@ -7,7 +7,5 @@ type Jwt struct {
 }
 
 func NewJwt(jwt dto.JwtSetting) IJwt {
-	return &Jwt{
-		JwtPackage: jwt,
-	}
+	return &Jwt{JwtPackage: jwt}
 }
