@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/agastiya/tiyago/dto"
+	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -13,19 +14,31 @@ type IJwt interface {
 	VerifyToken(tokenString string, key string) (jwt.MapClaims, error)
 }
 
-func (j Jwt) GenerateToken(account dto.LoginResponse, key string) (string, error) {
+func (j Jwt) MapKeyWithEnv(key string) JwtConfig {
 
-	switch key {
-	case "secret_key":
-		key = j.JwtPackage.SecretKey
-	case "refresh_secret_key":
-		key = j.JwtPackage.RefresSecretKey
-	default:
-		return "", fmt.Errorf("key not found!")
+	mapKey := map[string]JwtConfig{
+		"secret_key": {
+			Key: j.JwtPackage.SecretKey,
+			Exp: constant.ONEHOUR,
+		},
+		"refresh_secret_key": {
+			Key: j.JwtPackage.RefreshSecretKey,
+			Exp: constant.THREEHOURS,
+		},
 	}
 
+	return mapKey[key]
+}
+
+func (j Jwt) GenerateToken(account dto.LoginResponse, key string) (string, error) {
+
 	if key == "" {
-		return "", fmt.Errorf("key not set")
+		return "", fmt.Errorf("invalid key")
+	}
+
+	secretKey := j.MapKeyWithEnv(key)
+	if secretKey.Key == "" {
+		return "", fmt.Errorf("key not found!")
 	}
 
 	claims := jwt.MapClaims{
@@ -33,12 +46,12 @@ func (j Jwt) GenerateToken(account dto.LoginResponse, key string) (string, error
 		"fullname": account.Fullname,
 		"username": account.Username,
 		"email":    account.Email,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"exp":      time.Now().Add(time.Duration(secretKey.Exp) * time.Second).Unix(),
 		"iat":      time.Now().Unix(),
 	}
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(key))
+	token, err := t.SignedString([]byte(secretKey.Key))
 	if err != nil {
 		return "", err
 	}
@@ -48,12 +61,12 @@ func (j Jwt) GenerateToken(account dto.LoginResponse, key string) (string, error
 
 func (j Jwt) VerifyToken(tokenString string, key string) (jwt.MapClaims, error) {
 
-	switch key {
-	case "secret_key":
-		key = j.JwtPackage.SecretKey
-	case "refresh_secret_key":
-		key = j.JwtPackage.RefresSecretKey
-	default:
+	if key == "" {
+		return nil, fmt.Errorf("invalid key")
+	}
+
+	secretKey := j.MapKeyWithEnv(key)
+	if secretKey.Key == "" {
 		return nil, fmt.Errorf("key not found!")
 	}
 
@@ -61,7 +74,7 @@ func (j Jwt) VerifyToken(tokenString string, key string) (jwt.MapClaims, error) 
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
 		}
-		return []byte(key), nil
+		return []byte(secretKey.Key), nil
 	})
 
 	if err != nil {

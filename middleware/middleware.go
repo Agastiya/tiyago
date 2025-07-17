@@ -32,7 +32,7 @@ func (m Middleware) UserAuth() func(http.Handler) http.Handler {
 
 			claims, err := m.Jwt.VerifyToken(tokenString, "secret_key")
 			if err != nil {
-				errMessage := fmt.Sprintf("error verifying token: %v", err)
+				errMessage := fmt.Sprintf("error: %v", err)
 				response.ResponseError(w, errors.New(errMessage), constant.StatusUnauthorized)
 				return
 			}
