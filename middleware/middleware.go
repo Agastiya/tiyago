@@ -40,37 +40,6 @@ func (m Middleware) UserAuth() func(http.Handler) http.Handler {
 			ctx := context.WithValue(r.Context(), constant.ClaimsKey, claims)
 			r.Header.Set("claims_value", fmt.Sprintf("%v", claims))
 			next.ServeHTTP(w, r.WithContext(ctx))
-
-			// if userIdClaimsValue, exists := claims["UserID"]; exists {
-			// 	userId, err := strconv.ParseInt(fmt.Sprintf("%v", userIdClaimsValue), 10, 64)
-			// 	if err != nil {
-			// 		response.ResponseError(w, errors.New("userId is not integer"), constant.StatusInternalServerError)
-			// 		return
-			// 	}
-			// 	m.PerClientRateLimiter(userId, next).ServeHTTP(w, r.WithContext(ctx))
-			// } else {
-			// 	next.ServeHTTP(w, r.WithContext(ctx))
-			// }
 		})
 	}
 }
-
-// func (m Middleware) ApiKey() func(http.Handler) http.Handler {
-// 	return func(next http.Handler) http.Handler {
-// 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-// 			tokenHeader := r.Header.Get("Authorization")
-// 			if tokenHeader == "" {
-// 				response.ResponseError(w, errors.New("token not exists"), Constant.StatusUnauthorized)
-// 				return
-// 			}
-
-// 			if m.ApiKeySetting.Token == tokenHeader {
-// 				next.ServeHTTP(w, r)
-// 				return
-// 			}
-
-// 			Response.ResponseError(w, errors.New("invalid token"), Constant.StatusUnauthorized)
-// 		})
-// 	}
-// }
