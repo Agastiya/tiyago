@@ -120,7 +120,7 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResu
 		Email:     params.Email,
 		Password:  string(hashedPassword),
 		Active:    true,
-		CreatedBy: "System",
+		CreatedBy: params.CreatedBy,
 		CreatedAt: utils.TimeNow(),
 	}
 
@@ -142,14 +142,13 @@ func (s *UserService) UpdateUser(params dto.UpdateUserRequest) response.RespResu
 		return response.ResponseService(true, err, constant.StatusDataBadRequest, nil, nil)
 	}
 
-	modifiedBy := "System"
 	time := utils.TimeNow()
 	userModel := &models.User{
 		Id:         params.Id,
 		Fullname:   params.Fullname,
 		Username:   params.Username,
 		Email:      params.Email,
-		ModifiedBy: &modifiedBy,
+		ModifiedBy: &params.ModifiedBy,
 		ModifiedAt: &time,
 	}
 

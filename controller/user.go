@@ -73,6 +73,13 @@ func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctxData, _, err := utils.SetValueContext(r)
+	if err != nil {
+		response.ResponseError(w, err, constant.StatusInternalServerError)
+		return
+	}
+
+	params.CreatedBy = ctxData.Fullname
 	result := uc.UserService.CreateUser(params)
 	if result.HasErr {
 		response.ResponseError(w, result.Err, result.InternalCode)
@@ -91,12 +98,19 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctxData, _, err := utils.SetValueContext(r)
+	if err != nil {
+		response.ResponseError(w, err, constant.StatusInternalServerError)
+		return
+	}
+
 	params.Id, err = utils.GetUrl(r, "id")
 	if err != nil {
 		response.ResponseError(w, err, constant.StatusDataBadRequest)
 		return
 	}
 
+	params.ModifiedBy = ctxData.Fullname
 	result := uc.UserService.UpdateUser(params)
 	if result.HasErr {
 		response.ResponseError(w, result.Err, result.InternalCode)
@@ -111,12 +125,19 @@ func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
 	var params dto.DeleteUserRequest
 	var err error
 
+	ctxData, _, err := utils.SetValueContext(r)
+	if err != nil {
+		response.ResponseError(w, err, constant.StatusInternalServerError)
+		return
+	}
+
 	params.Id, err = utils.GetUrl(r, "id")
 	if err != nil {
 		response.ResponseError(w, err, constant.StatusDataBadRequest)
 		return
 	}
 
+	params.DeletedBy = ctxData.Fullname
 	result := uc.UserService.DeleteUser(params)
 	if result.HasErr {
 		response.ResponseError(w, result.Err, result.InternalCode)

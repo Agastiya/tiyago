@@ -11,17 +11,19 @@ type BrowseUserRequest struct {
 }
 
 type CreateUserRequest struct {
-	Fullname string
-	Username string
-	Email    string
-	Password string
+	Fullname  string
+	Username  string
+	Email     string
+	Password  string
+	CreatedBy string
 }
 
 type UpdateUserRequest struct {
-	Id       int64
-	Fullname string
-	Username string
-	Email    string
+	Id         int64
+	Fullname   string
+	Username   string
+	Email      string
+	ModifiedBy string
 }
 
 type DeleteUserRequest struct {
