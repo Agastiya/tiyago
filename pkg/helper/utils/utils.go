@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/agastiya/tiyago/pkg/constant"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func SetValueContext(r *http.Request) (result ContextMap, contextMap jwt.MapClaims, err error) {
@@ -25,10 +25,10 @@ func SetValueContext(r *http.Request) (result ContextMap, contextMap jwt.MapClai
 	}
 
 	result.Id = fmt.Sprintf("%v", contextMap["id"])
-	result.Name = fmt.Sprintf("%v", contextMap["name"])
+	result.Fullname = fmt.Sprintf("%v", contextMap["fullname"])
 	result.Username = fmt.Sprintf("%v", contextMap["username"])
 	result.Email = fmt.Sprintf("%v", contextMap["email"])
-	result.Active = fmt.Sprintf("%v", contextMap["active"])
+
 	return
 }
 
