@@ -1,13 +1,40 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Tiyago Restfull API",
-        "title": "Tiyago",
+        "description": "Tiyago RESTful API",
+        "title": "Tiyago REST API",
         "contact": {},
         "version": "1.0"
     },
     "basePath": "/tiyago",
     "paths": {
+        "/auth/loginbyemail": {
+            "post": {
+                "description": "Example value: `{\"email\":\"tiyago@gmail.com\",\"password\":\"tiyago12345\"}`",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login by Email \u0026 Password",
+                "parameters": [
+                    {
+                        "description": "Email \u0026 Password",
+                        "name": "body\"",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginByEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/ping": {
             "get": {
                 "consumes": [
@@ -23,12 +50,25 @@
             }
         }
     },
+    "definitions": {
+        "dto.LoginByEmailRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "Bearer": {
-            "description": "Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
+            "description": "Bearer token authentication. Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
             "type": "apiKey",
             "name": "Authorization",
-            "in": "Header"
+            "in": "header"
         }
     }
 }

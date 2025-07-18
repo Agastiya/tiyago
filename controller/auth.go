@@ -23,6 +23,13 @@ type IAuthController interface {
 	LoginByEmail(w http.ResponseWriter, r *http.Request)
 }
 
+// @Tags        Auth
+// @Summary     Login by Email & Password
+// @Description Example value: `{"email":"tiyago@gmail.com","password":"tiyago12345"}`
+// @Accept      json
+// @Produce     json
+// @Param       "request body" body    dto.LoginByEmailRequest   true  "Email & Password"
+// @Router      /auth/loginbyemail [post]
 func (au *AuthController) LoginByEmail(w http.ResponseWriter, r *http.Request) {
 
 	var params dto.LoginByEmailRequest

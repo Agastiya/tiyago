@@ -1,10 +1,36 @@
 basePath: /tiyago
+definitions:
+  dto.LoginByEmailRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
 info:
   contact: {}
-  description: Tiyago Restfull API
-  title: Tiyago
+  description: Tiyago RESTful API
+  title: Tiyago REST API
   version: "1.0"
 paths:
+  /auth/loginbyemail:
+    post:
+      consumes:
+      - application/json
+      description: 'Example value: `{"email":"tiyago@gmail.com","password":"tiyago12345"}`'
+      parameters:
+      - description: Email & Password
+        in: body
+        name: body"
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginByEmailRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Login by Email & Password
+      tags:
+      - Auth
   /ping:
     get:
       consumes:
@@ -16,8 +42,8 @@ paths:
       - Ping
 securityDefinitions:
   Bearer:
-    description: 'Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890'
-    in: Header
+    description: 'Bearer token authentication. Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890'
+    in: header
     name: Authorization
     type: apiKey
 swagger: "2.0"

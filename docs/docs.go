@@ -15,6 +15,33 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/loginbyemail": {
+            "post": {
+                "description": "Example value: ` + "`" + `{\"email\":\"tiyago@gmail.com\",\"password\":\"tiyago12345\"}` + "`" + `",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login by Email \u0026 Password",
+                "parameters": [
+                    {
+                        "description": "Email \u0026 Password",
+                        "name": "body\"",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginByEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/ping": {
             "get": {
                 "consumes": [
@@ -30,12 +57,25 @@ const docTemplate = `{
             }
         }
     },
+    "definitions": {
+        "dto.LoginByEmailRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "Bearer": {
-            "description": "Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
+            "description": "Bearer token authentication. Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
             "type": "apiKey",
             "name": "Authorization",
-            "in": "Header"
+            "in": "header"
         }
     }
 }`
@@ -46,8 +86,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/tiyago",
 	Schemes:          []string{},
-	Title:            "Tiyago",
-	Description:      "Tiyago Restfull API",
+	Title:            "Tiyago REST API",
+	Description:      "Tiyago RESTful API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
