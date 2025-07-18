@@ -13,6 +13,7 @@ import (
 
 type IMiddleware interface {
 	UserAuth() func(http.Handler) http.Handler
+	BasicAuthSwagger() func(http.Handler) http.Handler
 }
 
 func (m Middleware) UserAuth() func(http.Handler) http.Handler {
@@ -40,6 +41,32 @@ func (m Middleware) UserAuth() func(http.Handler) http.Handler {
 			ctx := context.WithValue(r.Context(), constant.ClaimsKey, claims)
 			r.Header.Set("claims_value", fmt.Sprintf("%v", claims))
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func (m Middleware) BasicAuthSwagger() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			var username string
+			var password string
+			username, password, ok := r.BasicAuth()
+			if !ok {
+				w.Header().Set("WWW-Authenticate", fmt.Sprint(`Basic `+username+password))
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+				return
+			}
+
+			if m.Swagger.Username == username && m.Swagger.Password == password {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			w.Header().Set("WWW-Authenticate", fmt.Sprint(`Basic `+username+password))
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 		})
 	}
 }

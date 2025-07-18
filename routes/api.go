@@ -2,9 +2,11 @@ package routes
 
 import (
 	"github.com/agastiya/tiyago/controller"
+	_ "github.com/agastiya/tiyago/docs"
 	"github.com/agastiya/tiyago/middleware"
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Routes struct {
@@ -42,6 +44,16 @@ func (app *Routes) InitRoutes() *chi.Mux {
 			})
 
 		})
+
+		switch app.Env {
+		case "local":
+			appRoute.Group(func(appRoute chi.Router) {
+				appRoute.With(app.Middleware.BasicAuthSwagger()).Mount("/swagger", httpSwagger.WrapHandler)
+			})
+		case "development":
+			appRoute.Mount("/swagger", httpSwagger.WrapHandler)
+		}
+
 		appRoute.Get("/ping", app.Controller.BaseController.Ping)
 	})
 

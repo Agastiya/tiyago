@@ -1,0 +1,23 @@
+basePath: /tiyago
+info:
+  contact: {}
+  description: Tiyago Restfull API
+  title: Tiyago
+  version: "1.0"
+paths:
+  /ping:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses: {}
+      tags:
+      - Ping
+securityDefinitions:
+  Bearer:
+    description: 'Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890'
+    in: Header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

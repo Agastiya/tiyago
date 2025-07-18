@@ -87,12 +87,18 @@ func (env Env) InitModule(db *gorm.DB) controller.Controller {
 }
 
 func (env Env) InitRoute() *chi.Mux {
+
 	db := DATABASE_MAIN.Get()
-	pkg := env.InitPackage()
+	packages := env.InitPackage()
+	initMiddleware := middleware.MiddlewareDeps{
+		Jwt:     packages.Jwt,
+		Swagger: env.Swagger,
+	}
+
 	routes := &routes.Routes{
 		Env:        env.App.Environment,
 		Controller: env.InitModule(db),
-		Middleware: middleware.NewMiddleware(pkg.Jwt),
+		Middleware: middleware.NewMiddleware(initMiddleware),
 	}
 	return routes.InitRoutes()
 }
