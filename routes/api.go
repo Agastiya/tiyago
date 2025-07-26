@@ -49,7 +49,7 @@ func (app *Routes) InitRoutes() *chi.Mux {
 
 		switch app.Env {
 		case "local":
-			// appRoute.Mount("/swagger", httpSwagger.WrapHandler)
+			appRoute.Mount("/swagger", httpSwagger.WrapHandler)
 		case "development":
 			appRoute.Group(func(appRoute chi.Router) {
 				appRoute.With(app.Middleware.BasicAuthSwagger()).Mount("/swagger", httpSwagger.WrapHandler)
