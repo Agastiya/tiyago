@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Tiyago RESTful API",
-        "title": "Tiyago REST API",
+        "description": "Tiayago REST API",
+        "title": "Tiyago",
         "contact": {},
         "version": "1.0"
     },
@@ -65,10 +65,10 @@
     },
     "securityDefinitions": {
         "Bearer": {
-            "description": "Bearer token authentication. Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
+            "description": "Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
             "type": "apiKey",
             "name": "Authorization",
-            "in": "header"
+            "in": "Header"
         }
     }
 }

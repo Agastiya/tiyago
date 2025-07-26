@@ -1,5 +1,4 @@
-main.exe
-/.idea
 /.vscode
-
+/.idea
+tiyago
 environment/production.yml

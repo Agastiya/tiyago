@@ -72,10 +72,10 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "Bearer": {
-            "description": "Bearer token authentication. Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
+            "description": "Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890",
             "type": "apiKey",
             "name": "Authorization",
-            "in": "header"
+            "in": "Header"
         }
     }
 }`
@@ -86,8 +86,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/tiyago",
 	Schemes:          []string{},
-	Title:            "Tiyago REST API",
-	Description:      "Tiyago RESTful API",
+	Title:            "Tiyago",
+	Description:      "Tiayago REST API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

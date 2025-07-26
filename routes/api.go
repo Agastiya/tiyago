@@ -45,16 +45,16 @@ func (app *Routes) InitRoutes() *chi.Mux {
 
 		})
 
+		appRoute.Get("/ping", app.Controller.BaseController.Ping)
+
 		switch app.Env {
 		case "local":
+			appRoute.Mount("/swagger", httpSwagger.WrapHandler)
+		case "development":
 			appRoute.Group(func(appRoute chi.Router) {
 				appRoute.With(app.Middleware.BasicAuthSwagger()).Mount("/swagger", httpSwagger.WrapHandler)
 			})
-		case "development":
-			appRoute.Mount("/swagger", httpSwagger.WrapHandler)
 		}
-
-		appRoute.Get("/ping", app.Controller.BaseController.Ping)
 	})
 
 	return appRoute

@@ -9,8 +9,8 @@ definitions:
     type: object
 info:
   contact: {}
-  description: Tiyago RESTful API
-  title: Tiyago REST API
+  description: Tiayago REST API
+  title: Tiyago
   version: "1.0"
 paths:
   /auth/loginbyemail:
@@ -42,8 +42,8 @@ paths:
       - Ping
 securityDefinitions:
   Bearer:
-    description: 'Bearer token authentication. Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890'
-    in: header
+    description: 'Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890'
+    in: Header
     name: Authorization
     type: apiKey
 swagger: "2.0"

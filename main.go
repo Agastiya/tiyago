@@ -4,14 +4,14 @@ import (
 	"github.com/agastiya/tiyago/app"
 )
 
-// @title Tiyago REST API
+// @title Tiyago
 // @version 1.0
-// @description Tiyago RESTful API
+// @description Tiayago REST API
 // @basePath /tiyago
 // @securityDefinitions.apikey Bearer
-// @in header
+// @in Header
 // @name Authorization
-// @description Bearer token authentication. Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890
+// @description Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890
 func main() {
 	app.AppInit()
 }
