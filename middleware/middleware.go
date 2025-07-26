@@ -48,25 +48,13 @@ func (m Middleware) UserAuth() func(http.Handler) http.Handler {
 func (m Middleware) BasicAuthSwagger() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-			var username string
-			var password string
 			username, password, ok := r.BasicAuth()
-			if !ok {
-				w.Header().Set("WWW-Authenticate", fmt.Sprint(`Basic `+username+password))
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+			if !ok || username != m.Swagger.Username || password != m.Swagger.Password {
+				w.Header().Set("WWW-Authenticate", `Basic realm="Restricted", charset="UTF-8"`)
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
-
-			if m.Swagger.Username == username && m.Swagger.Password == password {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			w.Header().Set("WWW-Authenticate", fmt.Sprint(`Basic `+username+password))
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+			next.ServeHTTP(w, r)
 		})
 	}
 }
