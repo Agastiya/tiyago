@@ -8,27 +8,33 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var validate *validator.Validate
+var validate = validator.New()
 
-func Validate(mystruct any) error {
-	validate = validator.New()
-	err := validate.Struct(mystruct)
-	if err != nil {
-		var errorValidate = "error: "
-		if _, ok := err.(*validator.InvalidValidationError); ok {
-			errorValidate += fmt.Sprintf("%s ,", err.Error())
-		}
-		errValidator := err.(validator.ValidationErrors)
-		for index, err := range errValidator {
-			if index+1 == len(errValidator) {
-				errorValidate += err.Field() + " " + err.Tag()
-			} else {
-				errorValidate += err.Field() + " " + err.Tag() + ","
-			}
-		}
-		return errors.New(errorValidate)
+func Validate(input any) error {
+	err := validate.Struct(input)
+	if err == nil {
+		return nil
 	}
-	return nil
+
+	var sb strings.Builder
+	if _, ok := err.(*validator.InvalidValidationError); ok {
+		return fmt.Errorf("invalid validation input: %w", err)
+	}
+
+	validationErrors := err.(validator.ValidationErrors)
+
+	for i, fieldErr := range validationErrors {
+		if fieldErr.Param() != "" {
+			sb.WriteString(fmt.Sprintf("%s %s:%s", fieldErr.Field(), fieldErr.Tag(), fieldErr.Param()))
+		} else {
+			sb.WriteString(fmt.Sprintf("%s %s", fieldErr.Field(), fieldErr.Tag()))
+		}
+		if i < len(validationErrors)-1 {
+			sb.WriteString(", ")
+		}
+	}
+
+	return errors.New(sb.String())
 }
 
 func ValidateSortColumn(allowedFields map[string]string, sortColumn string, defaultSortColumn string) string {
