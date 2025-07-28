@@ -115,7 +115,7 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.RespResu
 	}
 
 	userModel := &models.User{
-		Fullname:  params.Username,
+		Fullname:  params.Fullname,
 		Username:  params.Username,
 		Email:     params.Email,
 		Password:  string(hashedPassword),
