@@ -11,19 +11,19 @@ type BrowseUserRequest struct {
 }
 
 type CreateUserRequest struct {
-	Fullname  string
-	Username  string
-	Email     string
-	Password  string
-	CreatedBy string
+	Fullname  string `json:"fullname" validate:"max=100"`
+	Username  string `json:"username" validate:"max=15"`
+	Email     string `json:"email" validate:"max=150,email"`
+	Password  string `json:"password"`
+	CreatedBy string `json:"createdBy"`
 }
 
 type UpdateUserRequest struct {
-	Id         int64
-	Fullname   string
-	Username   string
-	Email      string
-	ModifiedBy string
+	Id         int64  `json:"id"`
+	Fullname   string `json:"fullname" validate:"max=100"`
+	Username   string `json:"username" validate:"max=15"`
+	Email      string `json:"email" validate:"max=150,email"`
+	ModifiedBy string `json:"modifiedBy"`
 }
 
 type DeleteUserRequest struct {

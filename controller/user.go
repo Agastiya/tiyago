@@ -29,8 +29,21 @@ type IUserController interface {
 	UserDelete(w http.ResponseWriter, r *http.Request)
 }
 
+// @Tags		User
+// @Summary		Browse Users
+// @Description Sample Parameter: `?sortColumn=id&sortOrder=desc&pageSize=20`
+// @Accept		json
+// @Produce		json
+// @Param		sortColumn		query	string		false	"sortColumn"
+// @Param		sortOrder		query	string		false	"sortOrder"
+// @Param		pageSize		query	int64		false	"pageSize"
+// @Param		pageNumber		query	int64		false	"pageNumber"
+// @Param		fullname		query	string		false	"fullname"
+// @Param		username		query	string		false	"username"
+// @Param		email			query	string		false	"email"
+// @Security	Bearer
+// @Router		/user [get]
 func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
-
 	var params dto.BrowseUserRequest
 	err := schema.NewDecoder().Decode(&params, r.URL.Query())
 	if err != nil {
@@ -47,8 +60,15 @@ func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
 }
 
+// @Tags		User
+// @Summary		Detail user
+// @Description Sample Parameter: `1`
+// @Accept		json
+// @Produce		json
+// @Param		id	path	int64	true	"id"
+// @Security	Bearer
+// @Router		/user/{id} [get]
 func (uc *UserController) UserDetail(w http.ResponseWriter, r *http.Request) {
-
 	id, err := utils.GetUrl(r, "id")
 	if err != nil {
 		response.ResponseError(w, err, constant.StatusDataBadRequest)
@@ -64,11 +84,23 @@ func (uc *UserController) UserDetail(w http.ResponseWriter, r *http.Request) {
 	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
 }
 
+// @Tags        User
+// @Summary     Create User
+// @Description Example value: `{"fullname":"Agastiya","username":"ageztya777","email":"ageztya.putra@gmail.com","password":"12345678"}`
+// @Accept      json
+// @Produce     json
+// @Param       "request body"	body	dto.CreateUserRequest	true "example payload"
+// @Security	Bearer
+// @Router    	/user [post]
 func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
-
 	var params dto.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
+		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		return
+	}
+
+	if err := utils.Validate(params); err != nil {
 		response.ResponseError(w, err, constant.StatusDataBadRequest)
 		return
 	}
@@ -89,11 +121,25 @@ func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
 }
 
+// @Tags        User
+// @Summary     Update User
+// @Description Example value: `id:2, body:{"email":"jhon.doe@gmail.com","fullname":"Jhon Doe","username":"jhon.doe"}`
+// @Accept      json
+// @Produce     json
+// @Param		id					path	int64					true	"id"
+// @Param       "request 	body"	body	dto.UpdateUserRequest	true 	"example payload"
+// @Security	Bearer
+// @Router    	/user/{id} [put]
 func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 
 	var params dto.UpdateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
+		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		return
+	}
+
+	if err := utils.Validate(params); err != nil {
 		response.ResponseError(w, err, constant.StatusDataBadRequest)
 		return
 	}
@@ -120,6 +166,14 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
 }
 
+// @Tags        User
+// @Summary     Delete User
+// @Description Example value: `1`
+// @Accept      json
+// @Produce     json
+// @Param		id					path	int64					true	"id"
+// @Security	Bearer
+// @Router    	/user/{id} [delete]
 func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
 
 	var params dto.DeleteUserRequest

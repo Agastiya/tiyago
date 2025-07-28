@@ -1,5 +1,21 @@
 basePath: /tiyago
 definitions:
+  dto.CreateUserRequest:
+    properties:
+      createdBy:
+        type: string
+      email:
+        maxLength: 150
+        type: string
+      fullname:
+        maxLength: 100
+        type: string
+      password:
+        type: string
+      username:
+        maxLength: 15
+        type: string
+    type: object
   dto.LoginByEmailRequest:
     properties:
       email:
@@ -16,6 +32,22 @@ definitions:
         type: string
     required:
     - refreshToken
+    type: object
+  dto.UpdateUserRequest:
+    properties:
+      email:
+        maxLength: 150
+        type: string
+      fullname:
+        maxLength: 100
+        type: string
+      id:
+        type: integer
+      modifiedBy:
+        type: string
+      username:
+        maxLength: 15
+        type: string
     type: object
 info:
   contact: {}
@@ -68,6 +100,134 @@ paths:
       responses: {}
       tags:
       - Ping
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: 'Sample Parameter: `?sortColumn=id&sortOrder=desc&pageSize=20`'
+      parameters:
+      - description: sortColumn
+        in: query
+        name: sortColumn
+        type: string
+      - description: sortOrder
+        in: query
+        name: sortOrder
+        type: string
+      - description: pageSize
+        format: int64
+        in: query
+        name: pageSize
+        type: integer
+      - description: pageNumber
+        format: int64
+        in: query
+        name: pageNumber
+        type: integer
+      - description: fullname
+        in: query
+        name: fullname
+        type: string
+      - description: username
+        in: query
+        name: username
+        type: string
+      - description: email
+        in: query
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Browse Users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: 'Example value: `{"fullname":"Agastiya","username":"ageztya777","email":"ageztya.putra@gmail.com","password":"12345678"}`'
+      parameters:
+      - description: example payload
+        in: body
+        name: body"
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserRequest'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Create User
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 'Example value: `1`'
+      parameters:
+      - description: id
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Delete User
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: 'Sample Parameter: `1`'
+      parameters:
+      - description: id
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Detail user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: 'Example value: `id:2, body:{"email":"jhon.doe@gmail.com","fullname":"Jhon
+        Doe","username":"jhon.doe"}`'
+      parameters:
+      - description: id
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: example payload
+        in: body
+        name: body"
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Update User
+      tags:
+      - User
 securityDefinitions:
   Bearer:
     description: 'Example: Bearer abcdefghijklmnopqrstuvwxyz1234567890'
