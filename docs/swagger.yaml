@@ -6,6 +6,16 @@ definitions:
         type: string
       password:
         type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
     type: object
 info:
   contact: {}
@@ -29,6 +39,24 @@ paths:
       - application/json
       responses: {}
       summary: Login by Email & Password
+      tags:
+      - Auth
+  /auth/refreshtoken:
+    post:
+      consumes:
+      - application/json
+      description: 'Example value: `{"refreshToken":"qwerty1234567"}`'
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: body"
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Refresh Token
       tags:
       - Auth
   /ping:

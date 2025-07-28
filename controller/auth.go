@@ -8,6 +8,7 @@ import (
 	"github.com/agastiya/tiyago/dto"
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
+	"github.com/agastiya/tiyago/pkg/helper/utils"
 	authSvc "github.com/agastiya/tiyago/service/auth"
 )
 
@@ -21,6 +22,7 @@ func NewAuthController(service authSvc.IAuthService) IAuthController {
 
 type IAuthController interface {
 	LoginByEmail(w http.ResponseWriter, r *http.Request)
+	RefreshToken(w http.ResponseWriter, r *http.Request)
 }
 
 // @Tags        Auth
@@ -31,7 +33,6 @@ type IAuthController interface {
 // @Param       "request body" body    dto.LoginByEmailRequest   true  "Email & Password"
 // @Router      /auth/loginbyemail [post]
 func (au *AuthController) LoginByEmail(w http.ResponseWriter, r *http.Request) {
-
 	var params dto.LoginByEmailRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
@@ -39,7 +40,41 @@ func (au *AuthController) LoginByEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := utils.Validate(params); err != nil {
+		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		return
+	}
+
 	result := au.AuthService.LoginByEmail(params)
+	if result.HasErr {
+		response.ResponseError(w, result.Err, result.InternalCode)
+		return
+	}
+
+	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+}
+
+// @Tags        Auth
+// @Summary     Refresh Token
+// @Description Example value: `{"refreshToken":"qwerty1234567"}`
+// @Accept      json
+// @Produce     json
+// @Param       "request body" body    dto.RefreshTokenRequest   true  "Refresh Token"
+// @Router      /auth/refreshtoken [post]
+func (au *AuthController) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	var params dto.RefreshTokenRequest
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		response.ResponseError(w, errors.New("invalid parameter"), constant.StatusDataBadRequest)
+		return
+	}
+
+	if err := utils.Validate(params); err != nil {
+		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		return
+	}
+
+	result := au.AuthService.RefreshToken(params)
 	if result.HasErr {
 		response.ResponseError(w, result.Err, result.InternalCode)
 		return

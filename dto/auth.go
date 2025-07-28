@@ -1,8 +1,8 @@
 package dto
 
 type LoginByEmailRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type LoginResponse struct {
@@ -12,4 +12,8 @@ type LoginResponse struct {
 	Email        string `json:"email"`
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refreshToken" validate:"required"`
 }

@@ -28,6 +28,7 @@ func (app *Routes) InitRoutes() *chi.Mux {
 
 			appRoute.Route("/auth", func(appRoute chi.Router) {
 				appRoute.Post("/loginbyemail", app.Controller.AuthController.LoginByEmail)
+				appRoute.Post("/refreshtoken", app.Controller.AuthController.RefreshToken)
 			})
 
 			appRoute.Route("/user", func(appRoute chi.Router) {

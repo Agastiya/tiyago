@@ -42,6 +42,33 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/auth/refreshtoken": {
+            "post": {
+                "description": "Example value: ` + "`" + `{\"refreshToken\":\"qwerty1234567\"}` + "`" + `",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh Token",
+                "parameters": [
+                    {
+                        "description": "Refresh Token",
+                        "name": "body\"",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/ping": {
             "get": {
                 "consumes": [
@@ -60,11 +87,26 @@ const docTemplate = `{
     "definitions": {
         "dto.LoginByEmailRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "refreshToken"
+            ],
+            "properties": {
+                "refreshToken": {
                     "type": "string"
                 }
             }
