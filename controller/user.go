@@ -73,7 +73,7 @@ func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctxData, _, err := utils.SetValueContext(r)
+	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
 		response.ResponseError(w, err, constant.StatusInternalServerError)
 		return
@@ -98,7 +98,7 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctxData, _, err := utils.SetValueContext(r)
+	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
 		response.ResponseError(w, err, constant.StatusInternalServerError)
 		return
@@ -125,7 +125,7 @@ func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
 	var params dto.DeleteUserRequest
 	var err error
 
-	ctxData, _, err := utils.SetValueContext(r)
+	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
 		response.ResponseError(w, err, constant.StatusInternalServerError)
 		return
