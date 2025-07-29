@@ -33,6 +33,16 @@ definitions:
     required:
     - refreshToken
     type: object
+  dto.UpdateUserPasswordRequest:
+    properties:
+      newPassword:
+        type: string
+      oldPassword:
+        type: string
+    required:
+    - newPassword
+    - oldPassword
+    type: object
   dto.UpdateUserRequest:
     properties:
       email:
@@ -226,6 +236,26 @@ paths:
       security:
       - Bearer: []
       summary: Update User
+      tags:
+      - User
+  /user/password:
+    put:
+      consumes:
+      - application/json
+      description: 'Example value: `body:{"oldPassword":"1234567890","newPassword":"Aa123456!"}`'
+      parameters:
+      - description: example payload
+        in: body
+        name: body"
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserPasswordRequest'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Update User Password
       tags:
       - User
 securityDefinitions:

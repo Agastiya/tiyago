@@ -180,6 +180,38 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/user/password": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Example value: ` + "`" + `body:{\"oldPassword\":\"1234567890\",\"newPassword\":\"Aa123456!\"}` + "`" + `",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update User Password",
+                "parameters": [
+                    {
+                        "description": "example payload",
+                        "name": "body\"",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateUserPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/user/{id}": {
             "get": {
                 "security": [
@@ -325,6 +357,21 @@ const docTemplate = `{
             ],
             "properties": {
                 "refreshToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateUserPasswordRequest": {
+            "type": "object",
+            "required": [
+                "newPassword",
+                "oldPassword"
+            ],
+            "properties": {
+                "newPassword": {
+                    "type": "string"
+                },
+                "oldPassword": {
                     "type": "string"
                 }
             }

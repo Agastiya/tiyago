@@ -26,6 +26,13 @@ type UpdateUserRequest struct {
 	ModifiedBy string `json:"modifiedBy"`
 }
 
+type UpdateUserPasswordRequest struct {
+	UserId      int64  `json:"userId" validate:"required" swaggerignore:"true"`
+	OldPassword string `json:"oldPassword" validate:"required"`
+	NewPassword string `json:"newPassword" validate:"required"`
+	ModifiedBy  string `json:"modifiedBy" swaggerignore:"true"`
+}
+
 type DeleteUserRequest struct {
 	Id        int64
 	DeletedBy string

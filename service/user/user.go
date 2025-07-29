@@ -18,6 +18,7 @@ type IUserService interface {
 	DetailUser(id int64) response.RespResultService
 	CreateUser(params dto.CreateUserRequest) response.RespResultService
 	UpdateUser(params dto.UpdateUserRequest) response.RespResultService
+	UpdateUserPassword(params dto.UpdateUserPasswordRequest) response.RespResultService
 	DeleteUser(params dto.DeleteUserRequest) response.RespResultService
 }
 
@@ -153,6 +154,42 @@ func (s *UserService) UpdateUser(params dto.UpdateUserRequest) response.RespResu
 	}
 
 	err := s.UserRepo.UpdateUser(userModel)
+	if err != nil {
+		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
+	}
+
+	return response.ResponseService(false, nil, constant.StatusOKJson, nil, nil)
+}
+
+func (s *UserService) UpdateUserPassword(params dto.UpdateUserPasswordRequest) response.RespResultService {
+
+	user, err := s.UserRepo.DetailUser(params.UserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return response.ResponseService(true, errors.New("user not found"), constant.StatusDataNotFound, nil, nil)
+		}
+		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.OldPassword))
+	if err != nil {
+		return response.ResponseService(true, errors.New("old password incorrect"), constant.StatusUnauthorized, nil, nil)
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.NewPassword), 10)
+	if err != nil {
+		return response.ResponseService(true, errors.New("hashed new password failed"), constant.StatusDataBadRequest, nil, nil)
+	}
+
+	time := utils.TimeNow()
+	userModel := &models.User{
+		Id:         params.UserId,
+		Password:   string(hashedPassword),
+		ModifiedBy: &params.ModifiedBy,
+		ModifiedAt: &time,
+	}
+
+	err = s.UserRepo.UpdateUserPassword(userModel)
 	if err != nil {
 		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
 	}

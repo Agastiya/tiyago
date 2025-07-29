@@ -14,6 +14,7 @@ type IUserRepository interface {
 	CheckEmailExists(email string, id int64) (bool, error)
 	CreateUser(user *models.User) error
 	UpdateUser(user *models.User) error
+	UpdateUserPassword(user *models.User) error
 	DeleteUser(user *models.User) error
 }
 
@@ -105,6 +106,10 @@ func (r *UserRepository) CreateUser(user *models.User) error {
 }
 
 func (r *UserRepository) UpdateUser(user *models.User) error {
+	return r.PostgreDB.Where("id = ?", user.Id).Updates(user).Error
+}
+
+func (r *UserRepository) UpdateUserPassword(user *models.User) error {
 	return r.PostgreDB.Where("id = ?", user.Id).Updates(user).Error
 }
 
