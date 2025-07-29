@@ -217,7 +217,7 @@ func (uc *UserController) UserUpdatePassword(w http.ResponseWriter, r *http.Requ
 // @Description Example value: `1`
 // @Accept      json
 // @Produce     json
-// @Param		id					path	int64					true	"id"
+// @Param		id	path	int64	true	"id"
 // @Security	Bearer
 // @Router    	/user/{id} [delete]
 func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
