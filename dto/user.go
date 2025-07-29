@@ -15,15 +15,15 @@ type CreateUserRequest struct {
 	Username  string `json:"username" validate:"max=15"`
 	Email     string `json:"email" validate:"max=150,email"`
 	Password  string `json:"password"`
-	CreatedBy string `json:"createdBy"`
+	CreatedBy string `json:"createdBy" swaggerignore:"true"`
 }
 
 type UpdateUserRequest struct {
-	Id         int64  `json:"id"`
+	Id         int64  `json:"id" swaggerignore:"true"`
 	Fullname   string `json:"fullname" validate:"max=100"`
 	Username   string `json:"username" validate:"max=15"`
 	Email      string `json:"email" validate:"max=150,email"`
-	ModifiedBy string `json:"modifiedBy"`
+	ModifiedBy string `json:"modifiedBy" swaggerignore:"true"`
 }
 
 type UpdateUserPasswordRequest struct {

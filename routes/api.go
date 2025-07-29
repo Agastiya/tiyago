@@ -35,11 +35,11 @@ func (app *Routes) InitRoutes() *chi.Mux {
 				appRoute.Use(app.Middleware.UserAuth())
 				appRoute.Get("/", app.Controller.UserController.UserBrowse)
 				appRoute.Post("/", app.Controller.UserController.UserCreate)
-				appRoute.Put("/password", app.Controller.UserController.UserUpdatePassword)
 				appRoute.Group(func(appRoute chi.Router) {
 					appRoute.Route("/{id}", func(appRoute chi.Router) {
 						appRoute.Get("/", app.Controller.UserController.UserDetail)
 						appRoute.Put("/", app.Controller.UserController.UserUpdate)
+						appRoute.Put("/password", app.Controller.UserController.UserUpdatePassword)
 						appRoute.Delete("/", app.Controller.UserController.UserDelete)
 					})
 				})

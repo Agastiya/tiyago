@@ -172,9 +172,10 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 // @Description Example value: `body:{"oldPassword":"1234567890","newPassword":"Aa123456!"}`
 // @Accept      json
 // @Produce     json
+// @Param		id					path	int64							true	"id"
 // @Param       "request 	body"	body	dto.UpdateUserPasswordRequest	true 	"example payload"
 // @Security	Bearer
-// @Router    	/user/password [put]
+// @Router    	/user/{id}/password [put]
 func (uc *UserController) UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
 	var params dto.UpdateUserPasswordRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
@@ -183,12 +184,18 @@ func (uc *UserController) UserUpdatePassword(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	params.UserId, err = utils.GetUrl(r, "id")
+	if err != nil {
+		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		return
+	}
+
 	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
 		response.ResponseError(w, err, constant.StatusInternalServerError)
 		return
 	}
-	params.UserId = utils.StringToInt64(ctxData.Id)
+	params.ModifiedBy = ctxData.Fullname
 
 	if err := utils.Validate(params); err != nil {
 		response.ResponseError(w, err, constant.StatusDataBadRequest)

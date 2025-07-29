@@ -2,8 +2,6 @@ basePath: /tiyago
 definitions:
   dto.CreateUserRequest:
     properties:
-      createdBy:
-        type: string
       email:
         maxLength: 150
         type: string
@@ -50,10 +48,6 @@ definitions:
         type: string
       fullname:
         maxLength: 100
-        type: string
-      id:
-        type: integer
-      modifiedBy:
         type: string
       username:
         maxLength: 15
@@ -238,12 +232,18 @@ paths:
       summary: Update User
       tags:
       - User
-  /user/password:
+  /user/{id}/password:
     put:
       consumes:
       - application/json
       description: 'Example value: `body:{"oldPassword":"1234567890","newPassword":"Aa123456!"}`'
       parameters:
+      - description: id
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: example payload
         in: body
         name: body"
