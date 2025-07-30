@@ -1,58 +1,48 @@
 package routes
 
 import (
-	"github.com/agastiya/tiyago/controller"
 	_ "github.com/agastiya/tiyago/docs"
-	"github.com/agastiya/tiyago/middleware"
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-type Routes struct {
-	Env        string
-	Controller controller.Controller
-	Middleware middleware.IMiddleware
-}
+func (routes *Routes) InitRoutes() *chi.Mux {
 
-func (app *Routes) InitRoutes() *chi.Mux {
+	r := chi.NewRouter()
+	r.Use(chiMiddleware.RequestID)
+	r.Use(chiMiddleware.RealIP)
+	r.Use(chiMiddleware.RedirectSlashes)
+	r.Use(chiMiddleware.Recoverer)
 
-	appRoute := chi.NewRouter()
-	appRoute.Use(chiMiddleware.RequestID)
-	appRoute.Use(chiMiddleware.RealIP)
-	appRoute.Use(chiMiddleware.RedirectSlashes)
-	appRoute.Use(chiMiddleware.Recoverer)
-
-	appRoute.Route("/tiyago", func(appRoute chi.Router) {
-		appRoute.Route("/auth", func(appRoute chi.Router) {
-			appRoute.Post("/loginbyemail", app.Controller.AuthController.LoginByEmail)
-			appRoute.Post("/refreshtoken", app.Controller.AuthController.RefreshToken)
+	r.Route("/tiyago", func(r chi.Router) {
+		r.Get("/ping", routes.Controller.BaseController.Ping)
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/loginbyemail", routes.Controller.AuthController.LoginByEmail)
+			r.Post("/refreshtoken", routes.Controller.AuthController.RefreshToken)
 		})
-		appRoute.Group(func(appRoute chi.Router) {
-			appRoute.Use(app.Middleware.UserAuth())
-			appRoute.Route("/user", func(appRoute chi.Router) {
-				appRoute.Get("/", app.Controller.UserController.UserBrowse)
-				appRoute.Post("/", app.Controller.UserController.UserCreate)
-				appRoute.Route("/{id}", func(appRoute chi.Router) {
-					appRoute.Get("/", app.Controller.UserController.UserDetail)
-					appRoute.Put("/", app.Controller.UserController.UserUpdate)
-					appRoute.Put("/password", app.Controller.UserController.UserUpdatePassword)
-					appRoute.Delete("/", app.Controller.UserController.UserDelete)
+		r.Group(func(r chi.Router) {
+			r.Use(routes.Middleware.UserAuth())
+			r.Route("/user", func(r chi.Router) {
+				r.Get("/", routes.Controller.UserController.UserBrowse)
+				r.Post("/", routes.Controller.UserController.UserCreate)
+				r.Route("/{id}", func(r chi.Router) {
+					r.Get("/", routes.Controller.UserController.UserDetail)
+					r.Put("/", routes.Controller.UserController.UserUpdate)
+					r.Put("/password", routes.Controller.UserController.UserUpdatePassword)
+					r.Delete("/", routes.Controller.UserController.UserDelete)
 				})
 			})
 		})
-
-		appRoute.Get("/ping", app.Controller.BaseController.Ping)
-
-		switch app.Env {
+		switch routes.Env {
 		case "local":
-			appRoute.Mount("/swagger", httpSwagger.WrapHandler)
+			r.Mount("/swagger", httpSwagger.WrapHandler)
 		case "development":
-			appRoute.Group(func(appRoute chi.Router) {
-				appRoute.With(app.Middleware.BasicAuthSwagger()).Mount("/swagger", httpSwagger.WrapHandler)
+			r.Group(func(r chi.Router) {
+				r.With(routes.Middleware.BasicAuthSwagger()).Mount("/swagger", httpSwagger.WrapHandler)
 			})
 		}
 	})
 
-	return appRoute
+	return r
 }
