@@ -5,15 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
+	"github.com/agastiya/tiyago/pkg/helper/utils"
 )
 
 type IMiddleware interface {
 	UserAuth() func(http.Handler) http.Handler
 	BasicAuthSwagger() func(http.Handler) http.Handler
+	Guard(Guard string) func(http.Handler) http.Handler
 }
 
 func (m Middleware) UserAuth() func(http.Handler) http.Handler {
@@ -51,9 +54,46 @@ func (m Middleware) BasicAuthSwagger() func(http.Handler) http.Handler {
 			username, password, ok := r.BasicAuth()
 			if !ok || username != m.Swagger.Username || password != m.Swagger.Password {
 				w.Header().Set("WWW-Authenticate", `Basic realm="Restricted", charset="UTF-8"`)
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				response.ResponseError(w, errors.New("Unauthorized"), constant.StatusUnauthorized)
 				return
 			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func (m Middleware) Guard(permission string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			var userRolePermissions = map[string][]string{
+				"Admin": {
+					"user.browse",
+					"user.detail",
+				},
+				"Guest": {
+					"user.detail",
+				},
+			}
+
+			user, _, err := utils.GetUserClaimsFromContext(r)
+			if err != nil {
+				response.ResponseError(w, err, constant.StatusInternalServerError)
+				return
+			}
+
+			var role string
+			if utils.StringToInt64(user.Id) == 1 {
+				role = "Admin"
+			} else {
+				role = "Guest"
+			}
+
+			if !slices.Contains(userRolePermissions[role], permission) {
+				response.ResponseError(w, errors.New("Forbidden"), constant.StatusForbidden)
+				return
+			}
+
 			next.ServeHTTP(w, r)
 		})
 	}
