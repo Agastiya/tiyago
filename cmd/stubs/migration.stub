@@ -1,0 +1,13 @@
+package migrations
+
+import "gorm.io/gorm"
+
+func Up{{.FuncName}}(db *gorm.DB) error {
+	// TODO: implement migration
+	return nil
+}
+
+func Down{{.FuncName}}(db *gorm.DB) error {
+	// TODO: rollback migration
+	return nil
+}

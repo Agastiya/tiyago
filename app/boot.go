@@ -2,6 +2,7 @@ package app
 
 import (
 	"flag"
+	"os"
 	"strings"
 
 	"github.com/agastiya/tiyago/config"
@@ -10,7 +11,6 @@ import (
 
 var (
 	environment = flag.String("tag", "", "define tag")
-	migrate     = flag.Bool("migrate", false, "run migration only")
 	initConfig  *config.Config
 )
 
@@ -32,8 +32,10 @@ func init() {
 
 func AppInit() {
 	initConfig.Engine.InitDatabase()
-	if *migrate {
-		initConfig.Engine.Migrate()
+
+	if *environment == constant.Local && len(os.Args) > 1 {
+		initConfig.Engine.InitCommand()
 	}
+
 	initConfig.Engine.Serve()
 }

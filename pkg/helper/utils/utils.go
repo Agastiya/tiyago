@@ -1,49 +1,35 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/agastiya/tiyago/pkg/constant"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/go-chi/chi/v5"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
-// GetUserClaimsFromContext extracts the JWT claims from the HTTP request context,
-// parses them into a ContextMap struct, and returns both the structured result
-// and the raw jwt.MapClaims.
-//
-// Returns an error if the claims are missing or have an unexpected type
-func GetUserClaimsFromContext(r *http.Request) (result ContextMap, contextMap jwt.MapClaims, err error) {
-	ctxValue := r.Context().Value(constant.ClaimsKey)
-	if ctxValue == nil {
-		err = fmt.Errorf("claims_value not found in context")
-		return
+func GetUrl(r *http.Request, key string) (int64, error) {
+
+	var err error
+	idStr := chi.URLParam(r, "id")
+	if idStr == "" {
+		return 0, fmt.Errorf("parameter not valid")
 	}
 
-	contextMap, ok := ctxValue.(jwt.MapClaims)
-	if !ok {
-		err = fmt.Errorf("claims_value is not of type map[string]any")
-		return
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parameter not valid")
 	}
 
-	result.Id = fmt.Sprintf("%v", contextMap["id"])
-	result.Fullname = fmt.Sprintf("%v", contextMap["fullname"])
-	result.Username = fmt.Sprintf("%v", contextMap["username"])
-	result.Email = fmt.Sprintf("%v", contextMap["email"])
-
-	return
-}
-
-// MapClaimsToContextMap converts a map of JWT claims (typically from jwt.MapClaims)
-// into a ContextMap struct, extracting fields like Id, Fullname, Username, and Email.
-func MapClaimsToContextMap(contextMap jwt.MapClaims) (result ContextMap) {
-	result.Id = fmt.Sprintf("%v", contextMap["id"])
-	result.Fullname = fmt.Sprintf("%v", contextMap["fullname"])
-	result.Username = fmt.Sprintf("%v", contextMap["username"])
-	result.Email = fmt.Sprintf("%v", contextMap["email"])
-	return
+	return id, nil
 }
 
 func TimeNow() time.Time {
@@ -57,4 +43,31 @@ func StringToInt64(s string) int64 {
 		return 0
 	}
 	return value
+}
+
+func ToFuncName(name string) string {
+	parts := strings.Split(name, "_")
+	for i, p := range parts {
+		parts[i] = cases.Title(language.English).String(p)
+	}
+	return strings.Join(parts, "")
+}
+
+func RenderTemplate(name string, data map[string]string) (string, error) {
+	tplContent, err := os.ReadFile(fmt.Sprintf("cmd/stubs/%s.stub", name))
+	if err != nil {
+		return "", err
+	}
+
+	tpl, err := template.New("stub").Parse(string(tplContent))
+	if err != nil {
+		return "", err
+	}
+
+	var buf bytes.Buffer
+	if err := tpl.Execute(&buf, data); err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }

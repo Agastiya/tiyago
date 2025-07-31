@@ -2,6 +2,6 @@ package contracts
 
 type Engine interface {
 	InitDatabase()
-	Migrate()
+	InitCommand()
 	Serve()
 }

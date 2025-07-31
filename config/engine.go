@@ -11,9 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/agastiya/tiyago/cmd"
 	"github.com/agastiya/tiyago/contracts"
 	"github.com/agastiya/tiyago/controller"
-	"github.com/agastiya/tiyago/database/migrations"
 	"github.com/agastiya/tiyago/dto"
 	"github.com/agastiya/tiyago/middleware"
 	"github.com/agastiya/tiyago/pkg/constant"
@@ -69,6 +69,22 @@ func (env Env) InitDatabase() {
 	dbConfigConnection[connectionName] = CreatePostgreSQLConnection(dbConfig)
 }
 
+func (env Env) InitCommand() {
+	db := DATABASE_MAIN.Get()
+	c := &cmd.Cmd{
+		DB: db,
+	}
+
+	root := cmd.RootCmd()
+	c.RegisterCommands(root)
+
+	if err := root.Execute(); err != nil {
+		panic(err)
+	}
+
+	os.Exit(1)
+}
+
 func (env Env) InitPackage() service.Package {
 	return service.Package{
 		Jwt: jwt.NewJwt(env.Jwt),
@@ -76,18 +92,15 @@ func (env Env) InitPackage() service.Package {
 }
 
 func (env Env) InitModule(db *gorm.DB) controller.Controller {
-
 	services := service.InitServices(service.ServiceDeps{
 		Repos:   repository.InitRepos(db),
 		Package: env.InitPackage(),
 	})
 	ctrl := controller.InitController(*services)
-
 	return *ctrl
 }
 
 func (env Env) InitRoute() *chi.Mux {
-
 	db := DATABASE_MAIN.Get()
 	packages := env.InitPackage()
 	initMiddleware := middleware.MiddlewareDeps{
@@ -101,12 +114,6 @@ func (env Env) InitRoute() *chi.Mux {
 		Middleware: middleware.NewMiddleware(initMiddleware),
 	}
 	return routes.InitRoutes()
-}
-
-func (env Env) Migrate() {
-	db := DATABASE_MAIN.Get()
-	migrations.Run(db)
-	os.Exit(1)
 }
 
 func (env Env) Serve() {
