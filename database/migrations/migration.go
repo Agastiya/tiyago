@@ -8,6 +8,4 @@ func Up(db *gorm.DB) {
 	UpCreateUsersTable(db)
 }
 
-func Down(db *gorm.DB) {
-	DownCreateUsersTable(db)
-}
+func Down(db *gorm.DB) {}
