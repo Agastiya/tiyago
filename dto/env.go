@@ -10,7 +10,6 @@ type (
 
 	AppSetting struct {
 		Name        string `yaml:"name"`
-		Service     string `yaml:"service"`
 		Host        string `yaml:"host"`
 		Port        string `yaml:"port"`
 		Environment string `yaml:"environment"`

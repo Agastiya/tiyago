@@ -1,19 +1,19 @@
 app:
-  name: "Apps"
-  service: "http"
+  name: "Tiyago"
   host: "0.0.0.0"
   port: "7000"
   environment: "development"
 databases:
 - connection: "postgreSql"
   host: "127.0.0.1"
-  port: 5430
+  port: 5432
   user: "postgres"
   password: "mysecretpassword"
-  database: "go-rest-api"
+  database: "tiyago"
   usage: "Main databases!"
 jwt:
-  secretKey: "dHgpUE99P299bks4a2NZS2leKlJwfSQveSdIZ0NYU05zZk1lLnF3Ryg9fmddNnViMEouRSVqeF5fc0RubC44"
+  secretKey: "setYourSecretKey!"
+  refresh_secret_key: "setYourRefreshSecretKey!"
 swagger:
-  username: "go-rest-api"
+  username: "tiyago"
   password: "password!"
