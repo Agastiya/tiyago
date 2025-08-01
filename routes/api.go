@@ -26,7 +26,7 @@ func (routes *Routes) InitRoutes() *chi.Mux {
 				r.Post("/refreshtoken", rc.AuthController.RefreshToken)
 			})
 			r.Group(func(r chi.Router) {
-				r.Use(rm.UserAuth())
+				r.Use(rm.JWTAuth())
 				r.Route("/users", func(r chi.Router) {
 					r.Get("/", rc.UserController.UserBrowse)
 					r.Post("/", rc.UserController.UserCreate)
@@ -43,7 +43,7 @@ func (routes *Routes) InitRoutes() *chi.Mux {
 				r.Mount("/swagger", httpSwagger.WrapHandler)
 			case "development":
 				r.Group(func(r chi.Router) {
-					r.With(rm.BasicAuthSwagger()).Mount("/swagger", httpSwagger.WrapHandler)
+					r.With(rm.SwaggerAuth()).Mount("/swagger", httpSwagger.WrapHandler)
 				})
 			}
 		})

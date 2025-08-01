@@ -12,11 +12,11 @@ import (
 )
 
 type IMiddleware interface {
-	UserAuth() func(http.Handler) http.Handler
-	BasicAuthSwagger() func(http.Handler) http.Handler
+	JWTAuth() func(http.Handler) http.Handler
+	SwaggerAuth() func(http.Handler) http.Handler
 }
 
-func (m Middleware) UserAuth() func(http.Handler) http.Handler {
+func (m Middleware) JWTAuth() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenString := r.Header.Get("Authorization")
@@ -45,7 +45,7 @@ func (m Middleware) UserAuth() func(http.Handler) http.Handler {
 	}
 }
 
-func (m Middleware) BasicAuthSwagger() func(http.Handler) http.Handler {
+func (m Middleware) SwaggerAuth() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			username, password, ok := r.BasicAuth()
