@@ -36,22 +36,22 @@ func (au *AuthController) LoginByEmail(w http.ResponseWriter, r *http.Request) {
 	var params dto.LoginByEmailRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
-		response.ResponseError(w, errors.New("invalid parameter"), constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, errors.New("invalid parameter"), constant.StatusDataBadRequest)
 		return
 	}
 
 	if err := utils.Validate(params); err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	result := au.AuthService.LoginByEmail(params)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 }
 
 // @Tags        Auth
@@ -65,20 +65,20 @@ func (au *AuthController) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	var params dto.RefreshTokenRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
-		response.ResponseError(w, errors.New("invalid parameter"), constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, errors.New("invalid parameter"), constant.StatusDataBadRequest)
 		return
 	}
 
 	if err := utils.Validate(params); err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	result := au.AuthService.RefreshToken(params)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 }

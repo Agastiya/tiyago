@@ -76,7 +76,7 @@ var response4xx = map[HttpInternalCode]Response{
 	StatusForbidden: {
 		HttpCode:    http.StatusForbidden,
 		HttpTitle:   http.StatusText(http.StatusForbidden),
-		Description: "Forbidden",
+		Description: "Forbidden Access",
 	},
 	StatusDataNotFound: {
 		HttpCode:    http.StatusNotFound,
@@ -91,7 +91,7 @@ var response4xx = map[HttpInternalCode]Response{
 	StatusTooManyRequests: {
 		HttpCode:    http.StatusTooManyRequests,
 		HttpTitle:   http.StatusText(http.StatusTooManyRequests),
-		Description: "To Many Request",
+		Description: "Too Many Requests",
 	},
 }
 

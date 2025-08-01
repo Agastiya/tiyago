@@ -6,21 +6,15 @@ import (
 	"github.com/agastiya/tiyago/pkg/constant"
 )
 
-type SuccessResponse struct {
-	RestCode    int    `json:"code"`
-	RestStatus  string `json:"status"`
-	RestMessage string `json:"message"`
-	RestResult  any    `json:"result" swaggertype:"object,string" example:"key:value,key2:value2"`
+type APIResponse struct {
+	Code    int    `json:"code"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Result  any    `json:"result,omitempty"`
+	Error   any    `json:"error,omitempty"`
 }
 
-type ErrorResponse struct {
-	RestCode    int    `json:"code"`
-	RestStatus  string `json:"status"`
-	RestMessage string `json:"message"`
-	RestResult  []any  `json:"result" swaggertype:"object,string" example:"key:value,key2:value2"`
-}
-
-type RespResultService struct {
+type ServiceResult struct {
 	HasErr       bool
 	Err          error
 	InternalCode constant.HttpInternalCode

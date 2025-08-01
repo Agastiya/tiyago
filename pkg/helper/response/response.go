@@ -10,13 +10,19 @@ import (
 	"github.com/agastiya/tiyago/pkg/constant"
 )
 
-func ResponseSuccess(w http.ResponseWriter, body any, httpInternalCode constant.HttpInternalCode) {
-	result := SuccessResponse{
-		RestCode:    int(httpInternalCode),
-		RestStatus:  httpInternalCode.Response().HttpTitle,
-		RestMessage: httpInternalCode.Response().Description,
-		RestResult:  body,
+func JSONResponse(w http.ResponseWriter, body any, err error, httpInternalCode constant.HttpInternalCode) {
+	res := APIResponse{
+		Code:    int(httpInternalCode),
+		Status:  httpInternalCode.Response().HttpTitle,
+		Message: httpInternalCode.Response().Description,
 	}
+
+	if err != nil {
+		res.Error = err.Error()
+	} else {
+		res.Result = body
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Encoding", "gzip")
 	w.WriteHeader(httpInternalCode.Response().HttpCode)
@@ -24,27 +30,11 @@ func ResponseSuccess(w http.ResponseWriter, body any, httpInternalCode constant.
 	gz := gzip.NewWriter(w)
 	defer gz.Close()
 
-	if err := json.NewEncoder(gz).Encode(result); err != nil {
-		fmt.Println("Failed to encode JSON:", err)
+	if encodeErr := json.NewEncoder(gz).Encode(res); encodeErr != nil {
+		fmt.Println("Failed to encode JSON:", encodeErr)
 	}
 }
 
-func ResponseError(w http.ResponseWriter, err error, httpInternalCode constant.HttpInternalCode) {
-	result := ErrorResponse{
-		RestCode:    int(httpInternalCode),
-		RestStatus:  httpInternalCode.Response().HttpTitle,
-		RestMessage: httpInternalCode.Response().Description,
-	}
-
-	if err != nil {
-		result.RestResult = append(result.RestResult, err.Error())
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(httpInternalCode.Response().HttpCode)
-	json.NewEncoder(w).Encode(result)
-}
-
-func ResponseService(hasErr bool, err error, internalCode constant.HttpInternalCode, tx *sql.Tx, result any) RespResultService {
-	return RespResultService{HasErr: hasErr, Err: err, InternalCode: internalCode, Tx: tx, Result: result}
+func NewServiceResult(hasErr bool, err error, internalCode constant.HttpInternalCode, tx *sql.Tx, result any) ServiceResult {
+	return ServiceResult{hasErr, err, internalCode, tx, result}
 }

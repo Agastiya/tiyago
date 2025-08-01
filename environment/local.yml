@@ -9,7 +9,7 @@ databases:
   port: 5432
   user: "postgres"
   password: "postgres"
-  database: "tiayago"
+  database: "tiyago"
   usage: "Main databases!"
 jwt:
   secret_key: "TiyagoSecretKey!"

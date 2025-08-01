@@ -48,17 +48,17 @@ func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 	var params dto.BrowseUserRequest
 	err := schema.NewDecoder().Decode(&params, r.URL.Query())
 	if err != nil {
-		response.ResponseError(w, errors.New("invalid parameter"), constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, errors.New("invalid parameter"), constant.StatusDataBadRequest)
 		return
 	}
 
 	result := uc.UserService.BrowseUser(params)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 }
 
 // @Tags		User
@@ -72,17 +72,17 @@ func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 func (uc *UserController) UserDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetUrl(r, "id")
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	result := uc.UserService.DetailUser(id)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 }
 
 // @Tags        User
@@ -97,29 +97,29 @@ func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 	var params dto.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	if err := utils.Validate(params); err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusInternalServerError)
+		response.JSONResponse(w, nil, err, constant.StatusInternalServerError)
 		return
 	}
 
 	params.CreatedBy = ctxData.Fullname
 	result := uc.UserService.CreateUser(params)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 }
 
 // @Tags        User
@@ -136,35 +136,35 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 	var params dto.UpdateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	if err := utils.Validate(params); err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusInternalServerError)
+		response.JSONResponse(w, nil, err, constant.StatusInternalServerError)
 		return
 	}
 
 	params.Id, err = utils.GetUrl(r, "id")
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	params.ModifiedBy = ctxData.Fullname
 	result := uc.UserService.UpdateUser(params)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 }
 
 // @Tags        User
@@ -180,35 +180,35 @@ func (uc *UserController) UserUpdatePassword(w http.ResponseWriter, r *http.Requ
 	var params dto.UpdateUserPasswordRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
-		response.ResponseError(w, errors.New("invalid parameter"), constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, errors.New("invalid parameter"), constant.StatusDataBadRequest)
 		return
 	}
 
 	params.UserId, err = utils.GetUrl(r, "id")
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusInternalServerError)
+		response.JSONResponse(w, nil, err, constant.StatusInternalServerError)
 		return
 	}
 	params.ModifiedBy = ctxData.Fullname
 
 	if err := utils.Validate(params); err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	result := uc.UserService.UpdateUserPassword(params)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseSuccess(w, result.Result, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 
 }
 
@@ -227,22 +227,22 @@ func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
 
 	ctxData, _, err := utils.GetUserClaimsFromContext(r)
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusInternalServerError)
+		response.JSONResponse(w, nil, err, constant.StatusInternalServerError)
 		return
 	}
 
 	params.Id, err = utils.GetUrl(r, "id")
 	if err != nil {
-		response.ResponseError(w, err, constant.StatusDataBadRequest)
+		response.JSONResponse(w, nil, err, constant.StatusDataBadRequest)
 		return
 	}
 
 	params.DeletedBy = ctxData.Fullname
 	result := uc.UserService.DeleteUser(params)
 	if result.HasErr {
-		response.ResponseError(w, result.Err, result.InternalCode)
+		response.JSONResponse(w, nil, result.Err, result.InternalCode)
 		return
 	}
 
-	response.ResponseError(w, nil, constant.StatusOKJson)
+	response.JSONResponse(w, result.Result, nil, constant.StatusOKJson)
 }

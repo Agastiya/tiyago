@@ -22,5 +22,5 @@ type IBaseController interface {
 // @Produce  json
 // @Router   /ping [get]
 func (bc *BaseController) Ping(w http.ResponseWriter, r *http.Request) {
-	response.ResponseSuccess(w, nil, constant.StatusOKJson)
+	response.JSONResponse(w, nil, nil, constant.StatusOKJson)
 }
