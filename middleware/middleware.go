@@ -21,12 +21,12 @@ func (m Middleware) JWTAuth() func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenString := r.Header.Get("Authorization")
 			if len(tokenString) == 0 {
-				response.JSONResponse(w, nil, errors.New("token not exists"), constant.StatusUnauthorized)
+				response.JSONResponse(w, nil, errors.New("token not exists"), http.StatusUnauthorized)
 				return
 			}
 
 			if !strings.Contains(tokenString, "Bearer ") {
-				response.JSONResponse(w, nil, errors.New("bearer not found"), constant.StatusUnauthorized)
+				response.JSONResponse(w, nil, errors.New("bearer not found"), http.StatusUnauthorized)
 				return
 			}
 			tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
@@ -34,7 +34,7 @@ func (m Middleware) JWTAuth() func(http.Handler) http.Handler {
 			claims, err := m.Jwt.VerifyToken(tokenString, "secret_key")
 			if err != nil {
 				errMessage := fmt.Sprintf("error: %v", err)
-				response.JSONResponse(w, nil, errors.New(errMessage), constant.StatusUnauthorized)
+				response.JSONResponse(w, nil, errors.New(errMessage), http.StatusUnauthorized)
 				return
 			}
 

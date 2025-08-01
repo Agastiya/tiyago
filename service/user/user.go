@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/agastiya/tiyago/dto"
 	"github.com/agastiya/tiyago/models"
-	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
 	"github.com/agastiya/tiyago/pkg/helper/utils"
 	"github.com/agastiya/tiyago/repository/user"
@@ -41,7 +41,7 @@ func (s *UserService) BrowseUser(params dto.BrowseUserRequest) response.ServiceR
 
 	result, err := s.UserRepo.BrowseUser(filter)
 	if err != nil {
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
 	browseResult := make([]dto.UserResponse, len(result))
@@ -72,7 +72,7 @@ func (s *UserService) BrowseUser(params dto.BrowseUserRequest) response.ServiceR
 		Data:         browseResult,
 	}
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, resultData)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, resultData)
 }
 
 func (s *UserService) DetailUser(id int64) response.ServiceResult {
@@ -80,9 +80,9 @@ func (s *UserService) DetailUser(id int64) response.ServiceResult {
 	result, err := s.UserRepo.DetailUser(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return response.NewServiceResult(true, err, constant.StatusDataNotFound, nil, nil)
+			return response.NewServiceResult(true, err, http.StatusNotFound, nil, nil)
 		}
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
 	detailResult := dto.UserResponse{
@@ -97,22 +97,22 @@ func (s *UserService) DetailUser(id int64) response.ServiceResult {
 		ModifiedAt: result.ModifiedAt,
 	}
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, detailResult)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, detailResult)
 }
 
 func (s *UserService) CreateUser(params dto.CreateUserRequest) response.ServiceResult {
 
 	if err := utils.CheckExistsFieldName("username", params.Username, 0, s.UserRepo.CheckUsernameExists); err != nil {
-		return response.NewServiceResult(true, err, constant.StatusDataBadRequest, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusBadRequest, nil, nil)
 	}
 
 	if err := utils.CheckExistsFieldName("email", params.Email, 0, s.UserRepo.CheckEmailExists); err != nil {
-		return response.NewServiceResult(true, err, constant.StatusDataBadRequest, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusBadRequest, nil, nil)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password), 10)
 	if err != nil {
-		return response.NewServiceResult(true, errors.New("hashed password failed"), constant.StatusDataBadRequest, nil, nil)
+		return response.NewServiceResult(true, errors.New("hashed password failed"), http.StatusBadRequest, nil, nil)
 	}
 
 	userModel := &models.User{
@@ -127,20 +127,20 @@ func (s *UserService) CreateUser(params dto.CreateUserRequest) response.ServiceR
 
 	err = s.UserRepo.CreateUser(userModel)
 	if err != nil {
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, nil)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, nil)
 }
 
 func (s *UserService) UpdateUser(params dto.UpdateUserRequest) response.ServiceResult {
 
 	if err := utils.CheckExistsFieldName("username", params.Username, params.Id, s.UserRepo.CheckUsernameExists); err != nil {
-		return response.NewServiceResult(true, err, constant.StatusDataBadRequest, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusBadRequest, nil, nil)
 	}
 
 	if err := utils.CheckExistsFieldName("email", params.Email, params.Id, s.UserRepo.CheckEmailExists); err != nil {
-		return response.NewServiceResult(true, err, constant.StatusDataBadRequest, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusBadRequest, nil, nil)
 	}
 
 	time := utils.TimeNow()
@@ -155,10 +155,10 @@ func (s *UserService) UpdateUser(params dto.UpdateUserRequest) response.ServiceR
 
 	err := s.UserRepo.UpdateUser(userModel)
 	if err != nil {
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, nil)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, nil)
 }
 
 func (s *UserService) UpdateUserPassword(params dto.UpdateUserPasswordRequest) response.ServiceResult {
@@ -166,19 +166,19 @@ func (s *UserService) UpdateUserPassword(params dto.UpdateUserPasswordRequest) r
 	user, err := s.UserRepo.DetailUser(params.UserId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return response.NewServiceResult(true, errors.New("user not found"), constant.StatusDataNotFound, nil, nil)
+			return response.NewServiceResult(true, errors.New("user not found"), http.StatusNotFound, nil, nil)
 		}
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.OldPassword))
 	if err != nil {
-		return response.NewServiceResult(true, errors.New("old password incorrect"), constant.StatusUnauthorized, nil, nil)
+		return response.NewServiceResult(true, errors.New("old password incorrect"), http.StatusUnauthorized, nil, nil)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.NewPassword), 10)
 	if err != nil {
-		return response.NewServiceResult(true, errors.New("hashed new password failed"), constant.StatusDataBadRequest, nil, nil)
+		return response.NewServiceResult(true, errors.New("hashed new password failed"), http.StatusBadRequest, nil, nil)
 	}
 
 	time := utils.TimeNow()
@@ -191,10 +191,10 @@ func (s *UserService) UpdateUserPassword(params dto.UpdateUserPasswordRequest) r
 
 	err = s.UserRepo.UpdateUser(userModel)
 	if err != nil {
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, nil)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, nil)
 }
 
 func (s *UserService) DeleteUser(params dto.DeleteUserRequest) response.ServiceResult {
@@ -209,8 +209,8 @@ func (s *UserService) DeleteUser(params dto.DeleteUserRequest) response.ServiceR
 
 	err := s.UserRepo.DeleteUser(userModel)
 	if err != nil {
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, nil)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, nil)
 }

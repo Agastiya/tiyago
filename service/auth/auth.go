@@ -3,9 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/agastiya/tiyago/dto"
-	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
 	"github.com/agastiya/tiyago/pkg/helper/utils"
 	"golang.org/x/crypto/bcrypt"
@@ -22,18 +22,18 @@ func (s *AuthService) LoginByEmail(params dto.LoginByEmailRequest) response.Serv
 	user, err := s.UserRepo.DetailUserByEmail(params.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return response.NewServiceResult(true, errors.New("email or password incorrect"), constant.StatusUnauthorized, nil, nil)
+			return response.NewServiceResult(true, errors.New("email or password incorrect"), http.StatusUnauthorized, nil, nil)
 		}
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
 	if !user.Active {
-		return response.NewServiceResult(true, errors.New("account disabled"), constant.StatusForbidden, nil, nil)
+		return response.NewServiceResult(true, errors.New("account disabled"), http.StatusForbidden, nil, nil)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.Password))
 	if err != nil {
-		return response.NewServiceResult(true, errors.New("email or password incorrect"), constant.StatusUnauthorized, nil, nil)
+		return response.NewServiceResult(true, errors.New("email or password incorrect"), http.StatusUnauthorized, nil, nil)
 	}
 
 	loginResponse := dto.LoginResponse{
@@ -46,26 +46,26 @@ func (s *AuthService) LoginByEmail(params dto.LoginByEmailRequest) response.Serv
 	accessToken, err := s.Jwt.GenerateToken(loginResponse, "secret_key")
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to generate token. error : %v", err)
-		return response.NewServiceResult(true, errors.New(errMsg), constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, errors.New(errMsg), http.StatusInternalServerError, nil, nil)
 	}
 
 	refreshToken, err := s.Jwt.GenerateToken(loginResponse, "refresh_secret_key")
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to generate token. error : %v", err)
-		return response.NewServiceResult(true, errors.New(errMsg), constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, errors.New(errMsg), http.StatusInternalServerError, nil, nil)
 	}
 
 	loginResponse.AccessToken = accessToken
 	loginResponse.RefreshToken = refreshToken
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, loginResponse)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, loginResponse)
 }
 
 func (s *AuthService) RefreshToken(params dto.RefreshTokenRequest) response.ServiceResult {
 
 	claims, err := s.Jwt.VerifyToken(params.RefreshToken, "refresh_secret_key")
 	if err != nil {
-		return response.NewServiceResult(true, err, constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
 	}
 
 	claimsData := utils.MapClaimsToContextMap(claims)
@@ -79,17 +79,17 @@ func (s *AuthService) RefreshToken(params dto.RefreshTokenRequest) response.Serv
 	accessToken, err := s.Jwt.GenerateToken(loginResponse, "secret_key")
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to generate token. error : %v", err)
-		return response.NewServiceResult(true, errors.New(errMsg), constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, errors.New(errMsg), http.StatusInternalServerError, nil, nil)
 	}
 
 	refreshToken, err := s.Jwt.GenerateToken(loginResponse, "refresh_secret_key")
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to generate token. error : %v", err)
-		return response.NewServiceResult(true, errors.New(errMsg), constant.StatusInternalServerError, nil, nil)
+		return response.NewServiceResult(true, errors.New(errMsg), http.StatusInternalServerError, nil, nil)
 	}
 
 	loginResponse.AccessToken = accessToken
 	loginResponse.RefreshToken = refreshToken
 
-	return response.NewServiceResult(false, nil, constant.StatusOKJson, nil, loginResponse)
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, loginResponse)
 }

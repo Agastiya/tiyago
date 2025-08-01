@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 
-	"github.com/agastiya/tiyago/pkg/constant"
 	"github.com/agastiya/tiyago/pkg/helper/response"
 )
 
@@ -22,5 +21,5 @@ type IBaseController interface {
 // @Produce  json
 // @Router   /ping [get]
 func (bc *BaseController) Ping(w http.ResponseWriter, r *http.Request) {
-	response.JSONResponse(w, nil, nil, constant.StatusOKJson)
+	response.JSONResponse(w, nil, nil, http.StatusOK)
 }

@@ -6,15 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/agastiya/tiyago/pkg/constant"
 )
 
-func JSONResponse(w http.ResponseWriter, body any, err error, httpInternalCode constant.HttpInternalCode) {
+func JSONResponse(w http.ResponseWriter, body any, err error, httpCode int) {
 	res := APIResponse{
-		Code:    int(httpInternalCode),
-		Status:  httpInternalCode.Response().HttpTitle,
-		Message: httpInternalCode.Response().Description,
+		Code:   httpCode,
+		Status: http.StatusText(httpCode),
 	}
 
 	if err != nil {
@@ -25,7 +22,7 @@ func JSONResponse(w http.ResponseWriter, body any, err error, httpInternalCode c
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Encoding", "gzip")
-	w.WriteHeader(httpInternalCode.Response().HttpCode)
+	w.WriteHeader(httpCode)
 
 	gz := gzip.NewWriter(w)
 	defer gz.Close()
@@ -35,6 +32,6 @@ func JSONResponse(w http.ResponseWriter, body any, err error, httpInternalCode c
 	}
 }
 
-func NewServiceResult(hasErr bool, err error, internalCode constant.HttpInternalCode, tx *sql.Tx, result any) ServiceResult {
-	return ServiceResult{hasErr, err, internalCode, tx, result}
+func NewServiceResult(hasErr bool, err error, httpCode int, tx *sql.Tx, result any) ServiceResult {
+	return ServiceResult{hasErr, err, httpCode, tx, result}
 }
