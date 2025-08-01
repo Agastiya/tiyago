@@ -189,7 +189,7 @@ func (s *UserService) UpdateUserPassword(params dto.UpdateUserPasswordRequest) r
 		ModifiedAt: &time,
 	}
 
-	err = s.UserRepo.UpdateUserPassword(userModel)
+	err = s.UserRepo.UpdateUser(userModel)
 	if err != nil {
 		return response.ResponseService(true, err, constant.StatusInternalServerError, nil, nil)
 	}
