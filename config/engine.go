@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/agastiya/tiyago/cmd"
-	"github.com/agastiya/tiyago/contracts"
 	"github.com/agastiya/tiyago/controller"
 	"github.com/agastiya/tiyago/dto"
 	"github.com/agastiya/tiyago/middleware"
@@ -33,9 +32,15 @@ type (
 
 	Config struct {
 		Environment Env
-		Engine      contracts.Engine
+		Engine      Engine
 	}
 )
+
+type Engine interface {
+	InitDatabase()
+	InitCommand()
+	Serve()
+}
 
 func GetEnvironment(env string) *Config {
 
