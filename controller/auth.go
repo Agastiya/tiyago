@@ -50,7 +50,7 @@ func (au *AuthController) LoginByEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 }
 
 // @Tags        Auth
@@ -79,5 +79,5 @@ func (au *AuthController) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 }

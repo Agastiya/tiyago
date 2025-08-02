@@ -57,7 +57,7 @@ func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 }
 
 // @Tags		User
@@ -81,7 +81,7 @@ func (uc *UserController) UserDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 }
 
 // @Tags        User
@@ -118,7 +118,7 @@ func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 }
 
 // @Tags        User
@@ -163,7 +163,7 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 }
 
 // @Tags        User
@@ -207,7 +207,7 @@ func (uc *UserController) UserUpdatePassword(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 
 }
 
@@ -243,5 +243,5 @@ func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSONResponse(w, result.Result, nil, http.StatusOK)
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
 }
