@@ -22,7 +22,6 @@ Tiyago is a powerful and modular backend system designed to handle scalable API 
 1. Clone the repository
     - git clone https://github.com/agastiya/tiyago.git
     - cd tiyago
-    - go mod download
 
 2. Download dependencies
     - go mod download
