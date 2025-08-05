@@ -26,6 +26,11 @@ func RenderAndWriteFile(lowerName, funcName, templateName, fileName string) erro
 	return err
 }
 
+func FileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil
+}
+
 func (c *Cmd) MakeFeatureCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "make:feature [name]",
@@ -45,8 +50,7 @@ func (c *Cmd) MakeFeatureCmd() *cobra.Command {
 
 			// Create Repository
 			repoPath := fmt.Sprintf("repository/%s", lowerName)
-			_, err = os.Stat(repoPath)
-			if os.IsNotExist(err) {
+			if !FileExists(repoPath) {
 				if err := os.Mkdir(repoPath, 0755); err != nil {
 					log.Fatal().Msgf("❌ Error creating repository feature folder: %v", err)
 				}
@@ -66,10 +70,9 @@ func (c *Cmd) MakeFeatureCmd() *cobra.Command {
 
 			// Create Service
 			servicePath := fmt.Sprintf("service/%s", lowerName)
-			_, err = os.Stat(servicePath)
-			if os.IsNotExist(err) {
+			if !FileExists(servicePath) {
 				if err := os.Mkdir(servicePath, 0755); err != nil {
-					log.Fatal().Msgf("❌ Error creating service feature folder: %v", err)
+					log.Fatal().Msgf("❌ Error creating repository feature folder: %v", err)
 				}
 			}
 
