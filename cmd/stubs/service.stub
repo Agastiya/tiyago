@@ -1,0 +1,144 @@
+package service
+
+import (
+	"errors"
+	"net/http"
+
+
+    "github.com/agastiya/tiyago/dto"
+	"github.com/agastiya/tiyago/models"
+	"github.com/agastiya/tiyago/pkg/helper/response"
+	"github.com/agastiya/tiyago/pkg/helper/utils"
+	"github.com/agastiya/tiyago/repository/{{.LowerFeatureName}}"
+	"gorm.io/gorm"
+)
+
+type I{{.FuncName}}Service interface {
+	Browse{{.FuncName}}(dto.Browse{{.FuncName}}Request) response.ServiceResult
+    Detail{{.FuncName}}(int64) response.ServiceResult
+    Create{{.FuncName}}(dto.Create{{.FuncName}}Request) response.ServiceResult
+    Update{{.FuncName}}(dto.Update{{.FuncName}}Request) response.ServiceResult
+    Delete{{.FuncName}}(dto.Delete{{.FuncName}}Request) response.ServiceResult
+}
+
+func (s *{{.FuncName}}Service) Browse{{.FuncName}}(params dto.Browse{{.FuncName}}Request) response.ServiceResult {
+
+	var defaultPaginationParams = dto.Pagination{PageSize: 10, PageNumber: 0, SortColumn: "id", SortOrder: "DESC"}
+	params.Pagination = utils.SetDefaultParams(params.Pagination, defaultPaginationParams)
+	params.SortOrder = utils.ValidateSortOrder(params.SortOrder, defaultPaginationParams.SortOrder)
+	params.SortColumn = utils.ValidateSortColumn(allowedFieldToSort, params.SortColumn, defaultPaginationParams.SortColumn)
+
+	filter := {{.LowerFeatureName}}.Browse{{.FuncName}}Filter{
+		PageSize:   params.PageSize,
+		PageNumber: params.PageNumber * params.PageSize,
+		SortColumn: params.SortColumn,
+		SortOrder:  params.SortOrder,
+		// ...
+	}
+
+	result, err := s.{{.FuncName}}Repo.Browse{{.FuncName}}(filter)
+	if err != nil {
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
+	}
+
+	browseResult := make([]dto.{{.FuncName}}Response, len(result))
+	var totalRecords int
+	var hasReachMax bool
+
+	for i, {{.LowerFeatureName}} := range result {
+		browseResult[i] = dto.{{.FuncName}}Response{
+			Id:         {{.LowerFeatureName}}.Id,
+			// ...
+			CreatedBy:  {{.LowerFeatureName}}.CreatedBy,
+			CreatedAt:  {{.LowerFeatureName}}.CreatedAt,
+			ModifiedBy: {{.LowerFeatureName}}.ModifiedBy,
+			ModifiedAt: {{.LowerFeatureName}}.ModifiedAt,
+		}
+		if i == 0 {
+			totalRecords = {{.LowerFeatureName}}.TotalRecords
+			hasReachMax = {{.LowerFeatureName}}.HasReachMax
+		}
+	}
+
+	resultData := dto.BrowseModel[dto.{{.FuncName}}Response]{
+		RecordsTotal: totalRecords,
+		HasReachMax:  hasReachMax,
+		Data:         browseResult,
+	}
+
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, resultData)
+}
+
+
+func (s *{{.FuncName}}Service) Detail{{.FuncName}}(id int64) response.ServiceResult {
+
+	result, err := s.{{.FuncName}}Repo.Detail{{.FuncName}}(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return response.NewServiceResult(true, err, http.StatusNotFound, nil, nil)
+		}
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
+	}
+
+	detailResult := dto.{{.FuncName}}Response{
+		// ...
+		CreatedBy:  result.CreatedBy,
+		CreatedAt:  result.CreatedAt,
+		ModifiedBy: result.ModifiedBy,
+		ModifiedAt: result.ModifiedAt,
+	}
+
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, detailResult)
+}
+
+
+func (s *{{.FuncName}}Service) Create{{.FuncName}}(params dto.Create{{.FuncName}}Request) response.ServiceResult {
+
+	{{.LowerFeatureName}}Model := &models.{{.FuncName}}{
+        // Set other ...
+		CreatedBy: params.CreatedBy,
+		CreatedAt: utils.TimeNow(),
+	}
+
+	err := s.{{.FuncName}}Repo.Create{{.FuncName}}({{.LowerFeatureName}}Model)
+	if err != nil {
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
+	}
+
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, nil)
+}
+
+func (s *{{.FuncName}}Service) Update{{.FuncName}}(params dto.Update{{.FuncName}}Request) response.ServiceResult {
+
+	time := utils.TimeNow()
+	{{.LowerFeatureName}}Model := &models.{{.FuncName}}{
+		Id:         params.Id,
+		// Set other ...
+		ModifiedBy: &params.ModifiedBy,
+		ModifiedAt: &time,
+	}
+
+	err := s.{{.FuncName}}Repo.Update{{.FuncName}}({{.LowerFeatureName}}Model)
+	if err != nil {
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
+	}
+
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, nil)
+}
+
+func (s *{{.FuncName}}Service) Delete{{.FuncName}}(params dto.Delete{{.FuncName}}Request) response.ServiceResult {
+
+	time := utils.TimeNow()
+	{{.LowerFeatureName}}Model := &models.{{.FuncName}}{
+		Id:        params.Id,
+		DeletedBy: &params.DeletedBy,
+		DeletedAt: &time,
+	}
+
+	err := s.{{.FuncName}}Repo.Delete{{.FuncName}}({{.LowerFeatureName}}Model)
+	if err != nil {
+		return response.NewServiceResult(true, err, http.StatusInternalServerError, nil, nil)
+	}
+
+	return response.NewServiceResult(false, nil, http.StatusOK, nil, nil)
+}

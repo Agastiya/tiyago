@@ -1,0 +1,75 @@
+package {{.LowerFeatureName}}
+
+import (
+	"fmt"
+
+	"github.com/agastiya/tiyago/models"
+)
+
+type I{{.FuncName}}Repository interface {
+	Browse{{.FuncName}}(Browse{{.FuncName}}Filter) ([]Browse{{.FuncName}}WithMeta, error)
+    Detail{{.FuncName}}(int64) (*models.{{.FuncName}}, error)
+    Create{{.FuncName}}(*models.{{.FuncName}}) error
+    Update{{.FuncName}}(*models.{{.FuncName}}) error
+    Delete{{.FuncName}}(*models.{{.FuncName}}) error
+}
+
+
+func (r *{{.FuncName}}Repository) Browse{{.FuncName}}(params Browse{{.FuncName}}Filter) ([]Browse{{.FuncName}}WithMeta, error) {
+
+	var {{.LowerFeatureName}}s []Browse{{.FuncName}}WithMeta
+	db := r.PostgreDB.Table("{{.LowerFeatureName}}s").
+		Select(`
+			{{.LowerFeatureName}}s.*, 
+			COUNT(*) OVER() AS total_records,
+			CASE 
+				WHEN CEILING(COUNT(*) OVER() / CAST(? AS FLOAT)) = (? + 1) 
+				THEN TRUE 
+				ELSE FALSE 
+			END AS has_reach_max`, params.PageSize, params.PageNumber).
+		Where("deleted_at IS NULL")
+
+    // sample for filter using ILIKE
+	// if params.Fullname != nil {
+	// 	db = db.Where("fullname ILIKE ?", "%"+*params.Fullname+"%")
+	// }
+
+	if params.SortColumn != "" && params.SortOrder != "" {
+		order := fmt.Sprintf("%s %s", params.SortColumn, params.SortOrder)
+		db = db.Order(order)
+	}
+
+	db = db.Limit(params.PageSize).Offset(params.PageNumber)
+
+	err := db.Find(&{{.LowerFeatureName}}s).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return {{.LowerFeatureName}}s, nil
+}
+
+func (r *{{.FuncName}}Repository) Detail{{.FuncName}}(id int64) (*models.{{.FuncName}}, error) {
+
+	var {{.LowerFeatureName}} models.{{.FuncName}}
+	err := r.PostgreDB.
+		Where("id = ?", id).
+		Where("deleted_at IS NULL").
+		Take(&{{.LowerFeatureName}}).Error
+	if err != nil {
+		return nil, err
+	}
+	return &{{.LowerFeatureName}}, nil
+}
+
+func (r *{{.FuncName}}Repository) Create{{.FuncName}}({{.LowerFeatureName}} *models.{{.FuncName}}) error {
+	return r.PostgreDB.Create(&{{.LowerFeatureName}}).Error
+}
+
+func (r *{{.FuncName}}Repository) Update{{.FuncName}}({{.LowerFeatureName}} *models.{{.FuncName}}) error {
+	return r.PostgreDB.Where("id = ?", {{.LowerFeatureName}}.Id).Updates({{.LowerFeatureName}}).Error
+}
+
+func (r *{{.FuncName}}Repository) Delete{{.FuncName}}({{.LowerFeatureName}} *models.{{.FuncName}}) error {
+	return r.PostgreDB.Where("id = ?", {{.LowerFeatureName}}.Id).Updates(&{{.LowerFeatureName}}).Error
+}

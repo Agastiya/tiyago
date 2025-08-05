@@ -1,0 +1,35 @@
+package dto
+
+import "time"
+
+// Request
+type Browse{{.FuncName}}Request struct {
+	Pagination
+    // ...
+}
+
+type Create{{.FuncName}}Request struct {
+	// ...
+	CreatedBy string `json:"createdBy" swaggerignore:"true"`
+}
+
+type Update{{.FuncName}}Request struct {
+	Id         int64  `json:"id" swaggerignore:"true"`
+	// ...
+	ModifiedBy string `json:"modifiedBy" swaggerignore:"true"`
+}
+
+type Delete{{.FuncName}}Request struct {
+	Id        int64
+	DeletedBy string
+}
+
+//Response
+type {{.FuncName}}Response struct {
+	Id         int64      `json:"id"`
+	// ...
+	CreatedBy  string     `json:"createdBy"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	ModifiedBy *string    `json:"modifiedBy"`
+	ModifiedAt *time.Time `json:"modifiedAt"`
+}

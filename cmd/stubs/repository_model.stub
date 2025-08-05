@@ -1,0 +1,28 @@
+package {{.LowerFeatureName}}
+
+import (
+	"github.com/agastiya/tiyago/models"
+	"gorm.io/gorm"
+)
+
+type {{.FuncName}}Repository struct {
+	PostgreDB *gorm.DB
+}
+
+func New(db *gorm.DB) I{{.FuncName}}Repository {
+	return &{{.FuncName}}Repository{PostgreDB: db}
+}
+
+type Browse{{.FuncName}}Filter struct {
+	PageSize   int
+	PageNumber int
+	SortColumn string
+	SortOrder  string
+	// ...
+}
+
+type Browse{{.FuncName}}WithMeta struct {
+	models.{{.FuncName}}
+	TotalRecords int
+	HasReachMax  bool
+}

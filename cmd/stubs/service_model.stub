@@ -1,0 +1,26 @@
+package service
+
+import "github.com/agastiya/tiyago/repository/{{.LowerFeatureName}}"
+
+type {{.FuncName}}Service struct {
+	{{.FuncName}}Repo {{.LowerFeatureName}}.I{{.FuncName}}Repository
+}
+
+type {{.FuncName}}ServiceDeps struct {
+	{{.FuncName}}Repo {{.LowerFeatureName}}.I{{.FuncName}}Repository
+}
+
+func New{{.FuncName}}Service(deps {{.FuncName}}ServiceDeps) I{{.FuncName}}Service {
+	return &{{.FuncName}}Service{
+		{{.FuncName}}Repo: deps.{{.FuncName}}Repo,
+	}
+}
+
+var allowedFieldToSort = map[string]string{
+	"id":         "id",
+	// ...
+	"createdBy":  "created_by",
+	"createdAt":  "created_at",
+	"modifiedBy": "modified_by",
+	"modifiedAt": "modified_at",
+}

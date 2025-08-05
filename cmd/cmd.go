@@ -14,6 +14,7 @@ func (c *Cmd) RegisterCommands(root *cobra.Command) {
 		c.MakeMigrationCmd(),
 		c.MigrateMigrationCmd(),
 		c.RollbackMigrationCmd(),
+		c.MakeFeatureCmd(),
 	)
 }
 

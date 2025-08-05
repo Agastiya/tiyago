@@ -1,0 +1,198 @@
+package controller
+
+import (
+	"encoding/json"
+	"errors"
+	"net/http"
+
+	"github.com/agastiya/tiyago/dto"
+	"github.com/agastiya/tiyago/pkg/helper/response"
+	"github.com/agastiya/tiyago/pkg/helper/utils"
+	{{.LowerFeatureName}}Svc "github.com/agastiya/tiyago/service/{{.LowerFeatureName}}"
+	"github.com/gorilla/schema"
+)
+
+type {{.FuncName}}Controller struct {
+	{{.FuncName}}Service {{.LowerFeatureName}}Svc.I{{.FuncName}}Service
+}
+
+func New{{.FuncName}}Controller(service {{.LowerFeatureName}}Svc.I{{.FuncName}}Service) I{{.FuncName}}Controller {
+	return &{{.FuncName}}Controller{ {{.FuncName}}Service: service }
+}
+
+type I{{.FuncName}}Controller interface {
+	{{.FuncName}}Browse(w http.ResponseWriter, r *http.Request)
+	{{.FuncName}}Detail(w http.ResponseWriter, r *http.Request)
+	{{.FuncName}}Create(w http.ResponseWriter, r *http.Request)
+	{{.FuncName}}Update(w http.ResponseWriter, r *http.Request)
+	{{.FuncName}}Delete(w http.ResponseWriter, r *http.Request)
+}
+
+// @Tags		{{.FuncName}}
+// @Summary		Browse {{.FuncName}}s
+// @Description Sample Parameter: `?sortColumn=id&sortOrder=desc&pageSize=20`
+// @Accept		json
+// @Produce		json
+// @Param		sortColumn		query	string		false	"sortColumn"
+// @Param		sortOrder		query	string		false	"sortOrder"
+// @Param		pageSize		query	int64		false	"pageSize"
+// @Param		pageNumber		query	int64		false	"pageNumber"
+// @Security	Bearer
+// @Router		/{{.LowerFeatureName}} [get]
+func (c *{{.FuncName}}Controller) {{.FuncName}}Browse(w http.ResponseWriter, r *http.Request) {
+	var params dto.Browse{{.FuncName}}Request
+	err := schema.NewDecoder().Decode(&params, r.URL.Query())
+	if err != nil {
+		response.JSONResponse(w, nil, errors.New("invalid parameter"), http.StatusBadRequest)
+		return
+	}
+
+	result := c.{{.FuncName}}Service.Browse{{.FuncName}}(params)
+	if result.HasErr {
+		response.JSONResponse(w, nil, result.Err, result.HttpCode)
+		return
+	}
+
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
+}
+
+// @Tags		{{.FuncName}}
+// @Summary		Detail {{.LowerFeatureName}}
+// @Description Sample Parameter: `1`
+// @Accept		json
+// @Produce		json
+// @Param		id	path	int64	true	"id"
+// @Security	Bearer
+// @Router		/{{.LowerFeatureName}}/{id} [get]
+func (c *{{.FuncName}}Controller) {{.FuncName}}Detail(w http.ResponseWriter, r *http.Request) {
+	id, err := utils.GetUrl(r, "id")
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusBadRequest)
+		return
+	}
+
+	result := c.{{.FuncName}}Service.Detail{{.FuncName}}(id)
+	if result.HasErr {
+		response.JSONResponse(w, nil, result.Err, result.HttpCode)
+		return
+	}
+
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
+}
+
+// @Tags        {{.FuncName}}
+// @Summary     Create {{.FuncName}}
+// @Description Example value: `{}`
+// @Accept      json
+// @Produce     json
+// @Param       "request body"	body	dto.Create{{.FuncName}}Request	true "example payload"
+// @Security	Bearer
+// @Router    	/{{.LowerFeatureName}} [post]
+func (c *{{.FuncName}}Controller) {{.FuncName}}Create(w http.ResponseWriter, r *http.Request) {
+	var params dto.Create{{.FuncName}}Request
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusBadRequest)
+		return
+	}
+
+	if err := utils.Validate(params); err != nil {
+		response.JSONResponse(w, nil, err, http.StatusBadRequest)
+		return
+	}
+
+	ctxData, _, err := utils.GetUserClaimsFromContext(r)
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusInternalServerError)
+		return
+	}
+
+	params.CreatedBy = ctxData.Fullname
+	result := c.{{.FuncName}}Service.Create{{.FuncName}}(params)
+	if result.HasErr {
+		response.JSONResponse(w, nil, result.Err, result.HttpCode)
+		return
+	}
+
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
+}
+
+// @Tags        {{.FuncName}}
+// @Summary     Update {{.FuncName}}
+// @Description Example value: `id:2, body:{}`
+// @Accept      json
+// @Produce     json
+// @Param		id					path	int64					true	"id"
+// @Param       "request 	body"	body	dto.Update{{.FuncName}}Request	true 	"example payload"
+// @Security	Bearer
+// @Router    	/{{.LowerFeatureName}}/{id} [put]
+func (c *{{.FuncName}}Controller) {{.FuncName}}Update(w http.ResponseWriter, r *http.Request) {
+
+	var params dto.Update{{.FuncName}}Request
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusBadRequest)
+		return
+	}
+
+	if err := utils.Validate(params); err != nil {
+		response.JSONResponse(w, nil, err, http.StatusBadRequest)
+		return
+	}
+
+	ctxData, _, err := utils.GetUserClaimsFromContext(r)
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusInternalServerError)
+		return
+	}
+
+	params.Id, err = utils.GetUrl(r, "id")
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusBadRequest)
+		return
+	}
+
+	params.ModifiedBy = ctxData.Fullname
+	result := c.{{.FuncName}}Service.Update{{.FuncName}}(params)
+	if result.HasErr {
+		response.JSONResponse(w, nil, result.Err, result.HttpCode)
+		return
+	}
+
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
+}
+
+// @Tags        {{.FuncName}}
+// @Summary     Delete {{.FuncName}}
+// @Description Example value: `1`
+// @Accept      json
+// @Produce     json
+// @Param		id	path	int64	true	"id"
+// @Security	Bearer
+// @Router    	/{{.LowerFeatureName}}/{id} [delete]
+func (c *{{.FuncName}}Controller) {{.FuncName}}Delete(w http.ResponseWriter, r *http.Request) {
+
+	var params dto.Delete{{.FuncName}}Request
+	var err error
+
+    params.Id, err = utils.GetUrl(r, "id")
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusBadRequest)
+		return
+	}
+
+	ctxData, _, err := utils.GetUserClaimsFromContext(r)
+	if err != nil {
+		response.JSONResponse(w, nil, err, http.StatusInternalServerError)
+		return
+	}
+
+	params.DeletedBy = ctxData.Fullname
+	result := c.{{.FuncName}}Service.Delete{{.FuncName}}(params)
+	if result.HasErr {
+		response.JSONResponse(w, nil, result.Err, result.HttpCode)
+		return
+	}
+
+	response.JSONResponse(w, result.Result, nil, result.HttpCode)
+}
