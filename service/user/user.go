@@ -199,11 +199,10 @@ func (s *UserService) UpdateUserPassword(params dto.UpdateUserPasswordRequest) r
 
 func (s *UserService) DeleteUser(params dto.DeleteUserRequest) response.ServiceResult {
 
-	deletedBy := "System"
 	time := utils.TimeNow()
 	userModel := &models.User{
 		Id:        params.Id,
-		DeletedBy: &deletedBy,
+		DeletedBy: &params.DeletedBy,
 		DeletedAt: &time,
 	}
 
