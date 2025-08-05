@@ -1,0 +1,16 @@
+package models
+
+import (
+	"time"
+)
+
+type {{.FuncName}} struct {
+	Id         int64      `gorm:"primaryKey;autoIncrement"`
+	// ...
+	CreatedBy  string     `gorm:"size:100;not null"`
+	CreatedAt  time.Time  `gorm:"not null"`
+	ModifiedBy *string    `gorm:"size:100"`
+	ModifiedAt *time.Time `gorm:"type:timestamptz"`
+	DeletedBy  *string    `gorm:"size:100"`
+	DeletedAt  *time.Time `gorm:"type:timestamptz"`
+}
