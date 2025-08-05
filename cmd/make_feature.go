@@ -26,7 +26,7 @@ func (c *Cmd) MakeFeatureCmd() *cobra.Command {
 			shouldWrite := true
 
 			if FileExists(modelFileName) {
-				answer := AskForConfirmation("This file already exists. Do you want to override it? (y/N): ")
+				answer := AskForConfirmation("This model file already exists. Do you want to override it? (y/N): ")
 				shouldWrite = answer
 			}
 
