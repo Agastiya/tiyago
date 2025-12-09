@@ -15,14 +15,3 @@ func NewUserService(deps UserServiceDeps) IUserService {
 		UserRepo: deps.UserRepo,
 	}
 }
-
-var allowedFieldToSort = map[string]string{
-	"id":         "id",
-	"fullname":   "fullname",
-	"username":   "username",
-	"email":      "email",
-	"createdBy":  "created_by",
-	"createdAt":  "created_at",
-	"modifiedBy": "modified_by",
-	"modifiedAt": "modified_at",
-}

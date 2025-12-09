@@ -101,7 +101,7 @@ func (r *UserRepository) CheckEmailExists(email string, id int64) (bool, error) 
 }
 
 func (r *UserRepository) CreateUser(user *models.User) error {
-	return r.PostgreDB.Create(&user).Error
+	return r.PostgreDB.Create(user).Error
 }
 
 func (r *UserRepository) UpdateUser(user *models.User) error {
@@ -109,5 +109,5 @@ func (r *UserRepository) UpdateUser(user *models.User) error {
 }
 
 func (r *UserRepository) DeleteUser(user *models.User) error {
-	return r.PostgreDB.Where("id = ?", user.Id).Updates(&user).Error
+	return r.PostgreDB.Where("id = ?", user.Id).Updates(user).Error
 }

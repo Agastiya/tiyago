@@ -42,7 +42,7 @@ type IUserController interface {
 // @Param		username		query	string		false	"username"
 // @Param		email			query	string		false	"email"
 // @Security	Bearer
-// @Router		/user [get]
+// @Router		/users [get]
 func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 	var params dto.BrowseUserRequest
 	err := schema.NewDecoder().Decode(&params, r.URL.Query())
@@ -67,7 +67,7 @@ func (uc *UserController) UserBrowse(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Param		id	path	int64	true	"id"
 // @Security	Bearer
-// @Router		/user/{id} [get]
+// @Router		/users/{id} [get]
 func (uc *UserController) UserDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetUrl(r, "id")
 	if err != nil {
@@ -91,7 +91,7 @@ func (uc *UserController) UserDetail(w http.ResponseWriter, r *http.Request) {
 // @Produce     json
 // @Param       "request body"	body	dto.CreateUserRequest	true "example payload"
 // @Security	Bearer
-// @Router    	/user [post]
+// @Router    	/users [post]
 func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 	var params dto.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
@@ -129,7 +129,7 @@ func (uc *UserController) UserCreate(w http.ResponseWriter, r *http.Request) {
 // @Param		id					path	int64					true	"id"
 // @Param       "request 	body"	body	dto.UpdateUserRequest	true 	"example payload"
 // @Security	Bearer
-// @Router    	/user/{id} [put]
+// @Router    	/users/{id} [put]
 func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 
 	var params dto.UpdateUserRequest
@@ -174,7 +174,7 @@ func (uc *UserController) UserUpdate(w http.ResponseWriter, r *http.Request) {
 // @Param		id					path	int64							true	"id"
 // @Param       "request 	body"	body	dto.UpdateUserPasswordRequest	true 	"example payload"
 // @Security	Bearer
-// @Router    	/user/{id}/password [put]
+// @Router    	/users/{id}/password [put]
 func (uc *UserController) UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
 	var params dto.UpdateUserPasswordRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
@@ -218,7 +218,7 @@ func (uc *UserController) UserUpdatePassword(w http.ResponseWriter, r *http.Requ
 // @Produce     json
 // @Param		id	path	int64	true	"id"
 // @Security	Bearer
-// @Router    	/user/{id} [delete]
+// @Router    	/users/{id} [delete]
 func (uc *UserController) UserDelete(w http.ResponseWriter, r *http.Request) {
 
 	var params dto.DeleteUserRequest

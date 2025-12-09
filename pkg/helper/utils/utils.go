@@ -17,19 +17,18 @@ import (
 )
 
 func GetUrl(r *http.Request, key string) (int64, error) {
-
 	var err error
-	idStr := chi.URLParam(r, "id")
-	if idStr == "" {
-		return 0, fmt.Errorf("parameter not valid")
+	paramStr := chi.URLParam(r, key)
+	if paramStr == "" {
+		return 0, fmt.Errorf("parameter '%s' not valid", key)
 	}
 
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	value, err := strconv.ParseInt(paramStr, 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("parameter not valid")
+		return 0, fmt.Errorf("parameter '%s' not valid", key)
 	}
 
-	return id, nil
+	return value, nil
 }
 
 func TimeNow() time.Time {

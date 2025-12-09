@@ -25,6 +25,18 @@ type IUserService interface {
 func (s *UserService) BrowseUser(params dto.BrowseUserRequest) response.ServiceResult {
 
 	var defaultPaginationParams = dto.Pagination{PageSize: 10, PageNumber: 0, SortColumn: "id", SortOrder: "DESC"}
+
+	var allowedFieldToSort = map[string]string{
+		"id":         "id",
+		"fullname":   "fullname",
+		"username":   "username",
+		"email":      "email",
+		"createdBy":  "created_by",
+		"createdAt":  "created_at",
+		"modifiedBy": "modified_by",
+		"modifiedAt": "modified_at",
+	}
+
 	params.Pagination = utils.SetDefaultParams(params.Pagination, defaultPaginationParams)
 	params.SortOrder = utils.ValidateSortOrder(params.SortOrder, defaultPaginationParams.SortOrder)
 	params.SortColumn = utils.ValidateSortColumn(allowedFieldToSort, params.SortColumn, defaultPaginationParams.SortColumn)
@@ -46,7 +58,6 @@ func (s *UserService) BrowseUser(params dto.BrowseUserRequest) response.ServiceR
 
 	browseResult := make([]dto.UserResponse, len(result))
 	var totalRecords int
-	var hasReachMax bool
 
 	for i, user := range result {
 		browseResult[i] = dto.UserResponse{
@@ -62,13 +73,12 @@ func (s *UserService) BrowseUser(params dto.BrowseUserRequest) response.ServiceR
 		}
 		if i == 0 {
 			totalRecords = user.TotalRecords
-			hasReachMax = user.HasReachMax
 		}
 	}
 
 	resultData := dto.BrowseModel[dto.UserResponse]{
 		RecordsTotal: totalRecords,
-		HasReachMax:  hasReachMax,
+		HasReachMax:  (params.PageNumber+1)*params.PageSize >= totalRecords,
 		Data:         browseResult,
 	}
 

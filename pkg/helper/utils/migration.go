@@ -6,7 +6,7 @@ import (
 )
 
 func CreateTable(db *gorm.DB, name string, models any) {
-	if !db.Migrator().HasTable(&models) {
+	if !db.Migrator().HasTable(models) {
 		if err := db.Migrator().CreateTable(models); err != nil {
 			log.Fatal().Msgf("[Migration - %s] Failed: %v", name, err)
 		}
@@ -17,7 +17,7 @@ func CreateTable(db *gorm.DB, name string, models any) {
 }
 
 func DropTable(db *gorm.DB, name string, models any) {
-	if db.Migrator().HasTable(&models) {
+	if db.Migrator().HasTable(models) {
 		if err := db.Migrator().DropTable(models); err != nil {
 			log.Fatal().Msgf("[Migration - %s] Failed: %v", name, err)
 		}
@@ -28,8 +28,8 @@ func DropTable(db *gorm.DB, name string, models any) {
 }
 
 func AddColumn(db *gorm.DB, name string, models any, column string) {
-	if !db.Migrator().HasColumn(&models, column) {
-		if err := db.Migrator().AddColumn(&models, column); err != nil {
+	if !db.Migrator().HasColumn(models, column) {
+		if err := db.Migrator().AddColumn(models, column); err != nil {
 			log.Fatal().Msgf("[Migration - %s] Failed: %v", name, err)
 		}
 		log.Info().Msgf("[Migration - %s] Successfully migrated!", name)
@@ -39,7 +39,7 @@ func AddColumn(db *gorm.DB, name string, models any, column string) {
 }
 
 func DropColumn(db *gorm.DB, name string, models any, column string) {
-	if db.Migrator().HasColumn(&models, column) {
+	if db.Migrator().HasColumn(models, column) {
 		if err := db.Migrator().DropColumn(models, column); err != nil {
 			log.Fatal().Msgf("[Migration - %s] Failed: %v", name, err)
 		}
